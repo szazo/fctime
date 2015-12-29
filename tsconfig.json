@@ -1,0 +1,15 @@
+{
+    "filesGlob": [
+        "app/**/*.ts",
+        "typings/tsd.d.ts"
+    ],
+    "files": [
+        "app/app.ts",
+        "app/timesheet/MainController.ts",
+        "typings/tsd.d.ts"
+    ],
+    "compilerOptions": {},
+    "atom": {
+        "rewriteTsconfig": true
+    }
+}

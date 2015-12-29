@@ -2,9 +2,12 @@
 <html>
   <head>
     <title>FCTime</title>
-    <link rel="stylesheet" type="text/css" href="styles/main.css" />
+    <link rel="stylesheet" type="text/css" href="styles/main.css"></link>
+    <script type="text/javascript" src="../node_modules/angular/angular.js"></script>
+    <script type="text/javascript" src="timesheet/MainController.js"></script>
+    <script type="text/javascript" src="app.js"></script>
   </head>
-  <body>
+  <body ng-app="timesheet" ng-controller="mainController as ctrl">
     <table>
       <thead>
         <tr>
@@ -46,6 +49,17 @@
             <td><button class="takeoffButton">Felszállás</button></td>
             <td><input type="time" value=""></input></td>
             <td><input type="time" value=""></input></td>
+          </tr>
+          <tr ng-repeat="item in ctrl.items">
+             <td>x.</td>
+             <td><input type="text" value="{{item.name}}"></input></td>
+             <td><input type="text" value="{{item.club}}" size="5"></input></td>
+             <td><input type="text" value="{{item.level}}" size="2"></input></td>
+             <td><input type="text" value="{{item.reg}}" size="8"></input></td>
+             <td><input type="text" value="{{item.instructor}}"></input></td>
+             <td><input type="text" value="{{item.takeoffTime}}"></input></td>
+             <td><button class="landButton">Leszállás</button></td>
+             <td><input type="text" value="{{item.airTime}}"></input></td>
           </tr>
       </tbody>
     </table>

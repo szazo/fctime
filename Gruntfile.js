@@ -20,7 +20,8 @@ module.exports = function(grunt) {
     },
     ts: {
       default: {
-        src: 'app/**/*.ts'
+        tsconfig: true
+        //src: 'app/**/*.ts'
       }
     },
     sass: {
@@ -37,7 +38,7 @@ module.exports = function(grunt) {
     },
     'http-server': {
       dev: {
-        root: 'app',
+        root: '.',
         port: 8282,
         runInBackground: true
       }

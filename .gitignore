@@ -3,3 +3,4 @@ app/**/*.js
 app/**/*.js.map
 app/**/*.css.map
 app/**/*.css
+.tscache

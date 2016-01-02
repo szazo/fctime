@@ -6,6 +6,9 @@
     "files": [
         "app/app.ts",
         "app/timesheet/MainController.ts",
+        "app/timesheet/StateEvent.ts",
+        "app/timesheet/TimesheetState.ts",
+        "app/timesheet/TimesheetStore.ts",
         "typings/tsd.d.ts"
     ],
     "compilerOptions": {},

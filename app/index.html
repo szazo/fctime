@@ -4,6 +4,9 @@
     <title>FCTime</title>
     <link rel="stylesheet" type="text/css" href="styles/main.css"></link>
     <script type="text/javascript" src="../node_modules/angular/angular.js"></script>
+    <script type="text/javascript" src="timesheet/StateEvent.js"></script>
+    <script type="text/javascript" src="timesheet/TimesheetState.js"></script>
+    <script type="text/javascript" src="timesheet/TimesheetStore.js"></script>
     <script type="text/javascript" src="timesheet/MainController.js"></script>
     <script type="text/javascript" src="app.js"></script>
   </head>
@@ -28,41 +31,46 @@
         </tr>
       </thead>
       <tbody>
-          <tr>
-            <td>1.</td>
-            <td><input type="text" value="Szarvas Zoltán"></input></td>
-            <td><input type="text" value="E" size="5"></input></td>
-            <td><input type="text" value="D" size="2"></input></td>
-            <td><input type="text" value="HA-1524" size="8"></input></td>
-            <td><input type="text" value=""></input></td>
-            <td><input type="time" value="11:01"></input></td>
-            <td><button class="landButton">Leszállás</button></td>
-            <td><input type="time" value=""></input></td>
-          </tr>
-          <tr>
-            <td>2.</td>
-            <td><input type="text" value="Oláh Attila"></input></td>
-            <td><input type="text" value="E" size="5"></input></td>
-            <td><input type="text" value="C" size="2"></input></td>
-            <td><input type="text" value="HA-4324" size="8"></input></td>
-            <td><input type="text" value=""></input></td>
-            <td><button class="takeoffButton">Felszállás</button></td>
-            <td><input type="time" value=""></input></td>
-            <td><input type="time" value=""></input></td>
-          </tr>
           <tr ng-repeat="item in ctrl.items">
              <td>x.</td>
-             <td><input type="text" value="{{item.name}}"></input></td>
-             <td><input type="text" value="{{item.club}}" size="5"></input></td>
-             <td><input type="text" value="{{item.level}}" size="2"></input></td>
-             <td><input type="text" value="{{item.reg}}" size="8"></input></td>
-             <td><input type="text" value="{{item.instructor}}"></input></td>
-             <td><input type="text" value="{{item.takeoffTime}}"></input></td>
-             <td><button class="landButton">Leszállás</button></td>
-             <td><input type="text" value="{{item.airTime}}"></input></td>
+             <td><input type="text" ng-model="item.name" uib-typeahead=""></input></td>
+
+<!--uib-typeahead="state for state in states | filter:$viewValue | limitTo:8"-->
+
+             <td><input type="text" ng-bind="item.club" size="5"></input></td>
+             <td><input type="text" ng-bind="item.level" size="2"></input></td>
+             <td><input type="text" ng-bind="item.reg" size="8"></input></td>
+             <td><input type="text" ng-model="item.instructor" ng-change="ctrl.changeInstructor(item.id)"></input></td>
+             <td>
+               <div ng-if="item.state == 0">
+                 <button class="takeoffButton" ng-click="ctrl.takeOff(item.id)">Felszállás</button>
+               </div>
+               <div ng-if="item.state == 1 || item.state == 2">
+                 <input type="text" value="{{item.takeoffTime}}" size="6"></input>
+               </div>
+             </td>
+             <td>
+               <div ng-if="item.state == 1">
+                 <button class="landButton" ng-click="ctrl.land(item.id)">Leszállás</button>
+               </div>
+               <div ng-if="item.state == 2">
+                 <input type="text" value="{{item.landTime}}" size="6"></input>
+               </div>
+             </td>
+             <td>
+               <div ng-if="item.state == 1" class="flyingAirTime">
+                 {{item.airTime}}
+               </div>
+               <div ng-if="item.state == 2">
+                 <input type="text" value="{{item.airTime}}" size="6"></input>
+               </div>
+             </td>
           </tr>
       </tbody>
     </table>
+    <div>
+      <button ng-click="ctrl.addEmpty()">Új</button>
+    </div>
     <script src="//localhost:35729/livereload.js"></script>
   </body>
 </html>

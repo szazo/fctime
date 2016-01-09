@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="../node_modules/systemjs/dist/system.src.js" type="text/javascript"></script>
+    <script src="../node_modules/angular2/bundles/angular2-polyfills.js" type="text/javascript"></script>
+    <script src="../node_modules/rxjs/bundles/Rx.js" type="text/javascript"></script>
+    <script src="../node_modules/angular2/bundles/angular2.dev.js" type="text/javascript"></script>
+    <script>
+      System.config({
+        defaultJSExtensions: true,
+        packages: {
+            format: 'register'
+          }
+        }
+      );
+      System.import('boot')
+              .then(null, console.error.bind(console));
+    </script>
+  </head>
+  <body>
+    <fc-app>loading...</fc-app>
+    <script src="//localhost:35729/livereload.js"></script>
+  </body>
+</html>

@@ -18,6 +18,8 @@ class TimesheetState {
       case 'instructorChanged':
         this.instructorChanged(evt.params.id, evt.params.name);
         break;
+      case 'primarySeatPersonChanged':evt
+        this.primarySeatPersonChanged(evt.params.id, evt.params.person);
       case 'tookOff':
         this.tookOff(evt.params.id, evt.params.time);
         break;
@@ -40,8 +42,13 @@ class TimesheetState {
   }
 
   private entryCreated(id:string) {
-    var emptyItem = new Item(id, State.none, '', '', '', '', '', '', '', '');
+    var emptyItem = new Item(id, State.none, null, '', '', '', '', '', '', '');
     this.items.push(emptyItem);
+  }
+
+  private primarySeatPersonChanged(id:string, person:PersonRef|NotStoredPerson) {
+    var item = this.getItem(id);
+    item.primarySeatPerson = person;
   }
 
   private instructorChanged(id:string, name:string) {

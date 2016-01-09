@@ -1,18 +1,22 @@
 {
-    "filesGlob": [
-        "app/**/*.ts",
-        "typings/tsd.d.ts"
-    ],
     "files": [
-        "app/app.ts",
-        "app/timesheet/MainController.ts",
-        "app/timesheet/StateEvent.ts",
-        "app/timesheet/TimesheetState.ts",
-        "app/timesheet/TimesheetStore.ts",
-        "typings/tsd.d.ts"
+      "app/person.component.ts",
+      "app/primary-seat.component.ts",
+      "app/app.component.ts",
+      "app/boot.ts"
     ],
-    "compilerOptions": {},
-    "atom": {
-        "rewriteTsconfig": true
-    }
+    "compilerOptions": {
+        "target": "ES5",
+        "module": "system",
+        "moduleResolution": "node",
+        "noImplicitAny": false,
+        "experimentalDecorators": true,
+
+        "sourceMap": true,
+        "emitDecoratorMetadata": true
+
+    },
+    "exclude": [
+      "node_modules"
+    ]
 }

@@ -21,6 +21,11 @@ class TimesheetStore {
     this.applyEvent(evt);
   }
 
+  public changePrimarySeatPerson(id: string, person:NotStoredPerson|PersonRef) {
+    var evt = new StateEvent('primarySeatPersonChanged', {id:id, person:person});
+    this.applyEvent(evt)
+  }
+
   public changeInstructor(id: string, name:string) {
     var evt = new StateEvent('instructorChanged', {id: id, name:name});
     this.applyEvent(evt);

@@ -1,2 +1,1 @@
-angular.module('timesheet', [])
-.controller('mainController', MainController);
+var app = angular.module('timesheet', ['ui.bootstrap']);

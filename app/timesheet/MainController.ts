@@ -1,12 +1,85 @@
+//declare var app:ng.IModule;
+
+app.directive('fcPerson', () => {
+  return {
+    restrict: 'E',
+    template: '<div>{{person}}</div>',
+    scope: {
+      person: '='
+    }
+  }
+});
+
+app.directive('fcPersonFormat', () => {
+  return {
+    restrict: 'A',
+    require: 'ngModel',
+    link: (scope, element, attr, ngModel:ng.INgModelController) => {
+      //console.log('scope', scope);
+      //console.log('element', element);
+      //console.log('attr', attr);
+      //console.log('ngModel', ngModel);
+
+      var parse = (text) => {
+        console.log('parseViewValue', text);
+        return text;
+      }
+
+      var format = (modelValue) => {
+        console.log('formatModelValue:', modelValue);
+        if (modelValue instanceof PersonRef) {
+          return 'personref';
+        }
+
+        if (modelValue instanceof NotStoredPerson) {
+          return modelValue.name;
+        }
+
+        return modelValue;
+        //(modelValue || '').toUpperCase();
+      }
+
+      var validator = (modelValue, viewValue) => {
+        console.log('validatorModel', modelValue);
+        console.log('validatorView', viewValue);
+
+        if (modelValue instanceof PersonRef) {
+          return true;
+        }
+
+        if (modelValue instanceof NotStoredPerson) {
+          return true;
+        }
+
+        return false;
+      }
+
+      ngModel.$formatters.push(format);
+      ngModel.$parsers.push(parse);
+      ngModel.$validators['person'] = validator;
+    }
+  }
+})
 
 interface TimesheetView {
   changed():void;
 }
 
+class Person {
+  constructor(public id:string, public name:string) {
+
+  }
+}
+
+class PersonStore {
+
+}
 
 class MainController implements TimesheetView {
 
   private items:Item[];
+  private persons:Person[];
+  private selectedPerson:any;
 
   private store:TimesheetStore;
   private viewState:TimesheetState;
@@ -15,6 +88,11 @@ class MainController implements TimesheetView {
   constructor(private $scope, private $interval:ng.IIntervalService, private $q:ng.IQService) {
 
     this.store = new TimesheetStore(this);
+
+    this.persons = [
+      new Person("person1", "Nagy József"),
+      new Person("person2", "Repülős Pista")
+    ];
 
     this.lastRevision = 0;
     this.items = [];
@@ -48,6 +126,37 @@ class MainController implements TimesheetView {
 
   private addEmpty() {
     this.store.createEntry();
+  }
+
+  private formatPerson(model) {
+    console.log('format', model);
+
+    return 'alma';
+  }
+
+  private setAsPassenger(id, ctrl:ng.INgModelController) {
+    console.log('setAsPassenger');
+    console.log('setAsPassenger', ctrl.$viewValue);
+
+    this.store.changePrimarySeatPerson(id, new NotStoredPerson(NotStoredPersonType.passenger, ctrl.$viewValue));
+
+    //ctrl.$viewValue = 'alma';
+    ctrl.$validate();
+  }
+
+  private primarySeatPersonSelected(id, item, model, label) {
+
+    this.store.changePrimarySeatPerson(id, new PersonRef(model.id));
+    console.log('item', item);
+    console.log('model', model);
+    console.log('label', label);
+  }
+
+  private instructorSelected(item, model, label) {
+
+    console.log('item', item);
+    console.log('model', model);
+    console.log('label', label);
   }
 
   private changeInstructor(id:string):void {
@@ -101,6 +210,10 @@ class MainController implements TimesheetView {
       var item = this.items[i];
       if (item.state == State.flying) {
 
+        if (!item.takeoffTime) {
+          continue;
+        }
+
         var takeoff = this.parseHoursMinutes(item.takeoffTime);
         var diff = currentDate.getTime() - takeoff.getTime();
         var diffDate = new Date(0);
@@ -117,28 +230,4 @@ class MainController implements TimesheetView {
 
 }
 
-enum State {
-  none,
-  flying,
-  landed
-}
-
-// TODO: valid elnevezések
-class Item {
-
-  constructor(
-    public id:string,
-    public state:State,
-
-    public name:string,
-    public club:string,
-    public level:string,
-    public reg:string,
-    public instructor:string,
-    public takeoffTime:string,
-    public landTime:string,
-    public airTime:string)
-  {
-
-  }
-}
+app.controller('mainController', MainController);

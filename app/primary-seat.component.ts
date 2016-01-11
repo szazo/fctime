@@ -7,7 +7,7 @@ import {PersonComponent} from './person.component';
   template: `
     <div>
       <label>Személy: </label>
-      <fc-person></fc-person>
+      <fc-person (personChange)="onPersonChange($event)"></fc-person>
     </div>
     <div>
     <label>Szerep: </label>
@@ -19,15 +19,37 @@ import {PersonComponent} from './person.component';
 })
 export class PrimarySeatComponent {
 
+  private personData:any;
+  private roleData:any;
+
   private roles = [
     new Role('passenger', 'Utas'),
     new Role('pic', 'PIC'),
     new Role('student', 'Oktatás/ellenőrzés')
   ];
 
+  private onPersonChange(data:any) {
+    console.log('onPersonChange', data.data);
+
+
+  }
+
   private onRoleChange(role:string) {
     console.log('onRoleChange', role);
   }
+}
+
+enum PrimarySeatComponentState {
+  empty,
+  set
+}
+
+class PrimarySeatComponentData {
+
+
+  private personState;
+  private roleState;
+
 }
 
 class Role {

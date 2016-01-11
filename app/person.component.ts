@@ -1,10 +1,24 @@
 import {Component, EventEmitter, Output} from 'angular2/core';
 
+interface StateReference {
+  scope:string;
+  revision:number;
+}
+
+class StateEvent {
+  constructor(
+    public scope:string,
+    public name:string,
+    public data:any) {
+
+  }
+}
+
 @Component({
   selector: 'fc-person',
   template: `
-    <div><input placeholder="name" (ngModelChange)='onNameChange($event)' #box>
-    {{box.className}}</div>
+    <div><input (ngModelChange)="onNameChange($event)" [ngModel]="korte">
+    </div>
     <div *ngIf="isKnownPerson()">Klub: <input #club> Vizsga:
       <select #level>
         <option>K</option>
@@ -20,13 +34,20 @@ import {Component, EventEmitter, Output} from 'angular2/core';
 })
 export class PersonComponent {
 
-  @Output() almachanged = new EventEmitter();
+  @Output() personChange:EventEmitter<StateEvent> = new EventEmitter();
 
   private knownPersons = [
     new Person('p1', 'Oláh Attila', 'Endresz', 'C'),
     new Person('p2', 'Dosek Dani', 'Endresz', 'D')
   ];
 
+  private scope:string = 'PersonScope';
+  private revision:number;
+  private events:StateEvent[] = [];
+
+  korte:string;
+
+  private data:PersonComponentData;
   state:PersonComponentState;
   knownPersonId:string;
   unknownPersonName:string;
@@ -37,7 +58,7 @@ export class PersonComponent {
     this.setAsEmpty();
   }
 
-  public onNameChange(name: string) {
+  private onNameChange(name: string) {
 
     console.log('name change', name);
 
@@ -59,21 +80,46 @@ export class PersonComponent {
   }
 
   private setAsEmpty() {
-    this.state = PersonComponentState.empty;
-    this.unknownPersonName = null;
-    this.knownPersonId = null;
+
+    var data = new PersonComponentData(
+      PersonComponentState.empty,
+      null,
+      null
+    );
+
+    this.emitChange(data);
   }
 
   private setAsUnknownPerson(name: string) {
-    this.state = PersonComponentState.unknown;
-    this.unknownPersonName = name;
-    this.knownPersonId = null;
+
+    var data = new PersonComponentData(
+      PersonComponentState.unknown,
+      null,
+      name
+    );
+
+    this.emitChange(data);
   }
 
   private setAsKnownPerson(id: string) {
-    this.state = PersonComponentState.known;
-    this.knownPersonId = id;
-    this.unknownPersonName = null;
+
+    var data = new PersonComponentData(
+      PersonComponentState.known,
+      id,
+      null
+    );
+
+    this.emitChange(data);
+  }
+
+  private emitChange(data:any) {
+
+    console.log('emitChange', data);
+
+    this.data = data;
+    var evt = new StateEvent('PersonChanged', this.scope, data);
+
+    this.personChange.emit(evt);
   }
 
   public isKnownPerson() {
@@ -85,6 +131,17 @@ enum PersonComponentState {
   empty,
   unknown,
   known
+}
+
+class PersonComponentData {
+
+  constructor(
+    public state:PersonComponentState,
+    public knownPersonId:string,
+    public unknownPersonName:string
+  ) {
+
+  }
 }
 
 class Person {

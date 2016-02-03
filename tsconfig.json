@@ -1,7 +1,11 @@
 {
     "files": [
+      "app/stateref.ts",
+      "app/persondata.ts",
       "app/person.component.ts",
       "app/primary-seat.component.ts",
+      "app/entry.component.ts",
+      "app/timesheet.component.ts",
       "app/app.component.ts",
       "app/boot.ts"
     ],

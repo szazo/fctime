@@ -1,11 +1,12 @@
-import {Component, EventEmitter, Output} from 'angular2/core';
+import {Component, EventEmitter, Input, Output} from 'angular2/core';
+//import {IPersonData} from './persondata.ts';
 
 interface StateReference {
   scope:string;
   revision:number;
 }
 
-class StateEvent {
+export class StateEvent {
   constructor(
     public scope:string,
     public name:string,
@@ -34,6 +35,7 @@ class StateEvent {
 })
 export class PersonComponent {
 
+  //@Input() personData:IPersonData;
   @Output() personChange:EventEmitter<StateEvent> = new EventEmitter();
 
   private knownPersons = [
@@ -127,13 +129,13 @@ export class PersonComponent {
   }
 }
 
-enum PersonComponentState {
+export enum PersonComponentState {
   empty,
   unknown,
   known
 }
 
-class PersonComponentData {
+export class PersonComponentData {
 
   constructor(
     public state:PersonComponentState,

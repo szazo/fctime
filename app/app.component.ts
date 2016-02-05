@@ -1,8 +1,8 @@
 import {Component, Input, Output, Injectable, EventEmitter} from 'angular2/core';
-import {PrimarySeatComponent} from './primary-seat.component';
-import {PersonComponent,StateEvent} from './person.component';
-import {EntryComponent} from './entry.component';
-import {TimesheetComponent} from './timesheet.component';
+//import {PrimarySeatComponent} from './primary-seat.component';
+//import {PersonComponent,StateEvent} from './person.component';
+//import {EntryComponent} from './entry.component';
+//import {TimesheetComponent} from './timesheet.component';
 
 export interface IDispatcher {
 
@@ -15,14 +15,124 @@ export interface IChange {
   register(scope:any, eventName:any, listener:any);
 }
 
-class EventStore {
-
-  add(scope:any, parent:any, id:any, change:any) {
+class DummyEventRef {
+  constructor(
+    public id:any,
+    public scope:any = null
+  ) {
 
   }
+}
 
-  getChanges(fromId:any) {
+class DummyEvent {
 
+  public dependencies:DummyEventRef[];
+
+  constructor(
+    public id:any,
+    public action:any,
+    public payload:any,
+    dependencies:DummyEventRef[]
+  ) {
+    this.dependencies = dependencies;
+  }
+
+  getScopeParent(scope:any = null):DummyEventRef {
+    return this.dependencies.find((x) => x.scope == scope);
+  }
+}
+
+@Injectable()
+class EventStore {
+
+  private data:any = {};
+
+  load(data:any) {
+    for (var scope in data) {
+
+      var events = data[scope];
+
+      //console.log('EventStore load events', events, events.length);
+
+      for (var i = 0; i < events.length; i++) {
+
+        var evt = events[i];
+
+        var dep = evt[0];
+        var dependencies:DummyEventRef[] = [];
+        if (dep instanceof Array) {
+
+          dep.forEach((item) => {
+
+            if (item instanceof Array) {
+
+              dependencies.push(new DummyEventRef(item[1], item[0]));
+
+            } else {
+              dependencies.push(new DummyEventRef(item));
+            }
+
+          });
+
+        } else {
+          dependencies = [new DummyEventRef(dep)];
+        }
+
+        var theEvent = new DummyEvent(evt[1], evt[2], evt[3], dependencies);
+        //console.log('EventStore loaded event', theEvent);
+        if (!this.data[scope]) {
+          this.data[scope] = [];
+        }
+
+        this.data[scope].push(theEvent);
+
+        //console.log('EventStore load scope', scope, the);
+      }
+    }
+
+    console.log('Loaded events', this.data);
+  }
+
+  add(scope:any, evt:DummyEvent) {
+
+    if (!this.data[scope]) {
+      this.data[scope] = [];
+    }
+
+    this.data[scope].push(evt);
+  }
+
+  getChanges(scope:any, toId:any):DummyEvent[] {
+
+    var changes:any[] = [];
+    var scopeEvents:any[] = this.data[scope];
+
+    console.log('getChanges scopeEvents', scopeEvents);
+
+    if (!scopeEvents) {
+      return [];
+    }
+
+    var lastEvent = scopeEvents.find((x) => x.id == toId);
+    console.log('first lastEvent', lastEvent);
+
+    changes.push(lastEvent);
+
+    var thisScopeParent = lastEvent.getScopeParent();
+    while (thisScopeParent) {
+
+      console.log('thisScopeParent', thisScopeParent, thisScopeParent.id);
+      console.log('scopeEvents', scopeEvents);
+
+      lastEvent = scopeEvents.find((x) => x.id == thisScopeParent.id);
+      console.log('other lastEvent', lastEvent);
+
+      changes.unshift(lastEvent);
+
+      thisScopeParent = lastEvent.getScopeParent();
+    }
+
+    return changes;
   }
 
 }
@@ -81,13 +191,29 @@ export class Dispatcher implements IDispatcher {
 
 }
 
+class PersonState {
+
+  private name:any;
+
+  apply(evt:DummyEvent) {
+
+    this.name = evt.payload;
+
+  }
+
+}
+
 export class PersonStore {
 
   private eventStore:EventStore;
+  private personState:PersonState;
   private currentData:any;
 
   constructor(public scope:any, public dispatcher:IDispatcher) {
 
+    console.log('PersonStore constructor with scope', scope);
+
+    this.personState = new PersonState();
     this.eventStore = new EventStore();
 
     dispatcher.register(scope, 'nameChange', (param) =>
@@ -96,7 +222,8 @@ export class PersonStore {
 
       // ehhez a scope-hoz megvaltozott a nev
       var newData = this.currentData + 1;
-      this.eventStore.add(this.scope, this.currentData, newData, param);
+      var evt = new DummyEvent(newData, 'change', param, [new DummyEventRef(this.currentData)]);
+      this.eventStore.add(this.scope, evt);
 
       // ok, valid, jon az event a valtozasrol
       dispatcher.dispatch(scope, 'changed', newData);
@@ -107,6 +234,12 @@ export class PersonStore {
 
   load(data:any) {
     this.currentData = data;
+
+    var changes:any[] = this.eventStore.getChanges(this.scope, data);
+    console.log('PersonStore load getChanges', changes)
+    changes.forEach((change) => {
+
+    });
   }
 }
 
@@ -157,7 +290,16 @@ class EntryStore {
 
   constructor(
     public scope:any,
-    private dispatcher:Dispatcher) {
+    private dispatcher:Dispatcher,
+    private eventStore:EventStore) {
+  }
+
+  load2(rev:any) {
+
+    console.log('EntryStore load2');
+    var changes = this.eventStore.getChanges(this.scope, rev);
+
+    console.log('load2 changes', changes);
   }
 
   load(data:any) {
@@ -199,40 +341,64 @@ class TimesheetStore {
 
   constructor(
     public scope:any,
-    private dispatcher:Dispatcher) {
+    private dispatcher:Dispatcher,
+    private eventStore:EventStore) {
   }
 
-  load(data:any) {
+  load2(rev:any) {
 
-    var entryStores:EntryStore[] = [];
+    var changes = this.eventStore.getChanges(this.scope, rev);
+    console.log('TimesheetStore load2', changes);
 
-    data.entries.forEach((element, index) => {
-      console.log(element, index);
-    });
+    var entries = [];
+    changes.forEach((x) => {
 
-    data.entries.forEach((element, index) => {
+      console.log('TimesheetStore load2 change', x);
 
-      //let currentIndex = i;
-      console.log('currentIndex', index);
-
-      var entryStore = new EntryStore(this.scope + ':entry' + index, this.dispatcher);
-      entryStore.load(data.entries[index]);
-
-      entryStores.push(entryStore);
-
-      this.dispatcher.register(this.scope + ':entry' + index, 'changed', (data) => {
-        console.log('TimesheetStore EntryChanged', data);
-
-        var timesheetEntryChanged = {
-          index: index,
-          data: data
+      if (x.action == 'addentry') {
+        let entry = {
+          scope: x.payload.scope,
+          rev: x.getScopeParent(x.payload.scope).id
         };
 
-        this.dispatcher.dispatch(this.scope, 'changed', timesheetEntryChanged);
-      });
-    });
+        entries.push(entry);
+      } else if (x.action == 'change') {
 
-    this.entryStores = entryStores;
+        let entry = entries.find((y) => y.scope == x.payload.scope);
+        entry.scope = x.payload.scope;
+        entry.rev = x.getScopeParent(x.payload.scope).id;
+
+      }});
+
+      console.log('load2 entries loaded', entries);
+
+      // create the stores for entries
+      var entryStores:EntryStore[] = [];
+
+      entries.forEach((element, index) => {
+
+        //let currentIndex = i;
+        console.log('currentIndex', index);
+
+        var entryStore = new EntryStore(this.scope + ':entry' + index, this.dispatcher, this.eventStore);
+        entryStore.load2(entries[index]);
+
+        entryStores.push(entryStore);
+
+        this.dispatcher.register(this.scope + ':entry' + index, 'changed', (data) => {
+          console.log('TimesheetStore EntryChanged', data);
+
+          /*
+          var timesheetEntryChanged = {
+            index: index,
+            data: data
+          };
+
+          this.dispatcher.dispatch(this.scope, 'changed', timesheetEntryChanged);*/
+        });
+      });
+
+      this.entryStores = entryStores;
   }
 }
 
@@ -327,7 +493,8 @@ class DummyTimesheetComponent {
   private entries:EntryStore[];
 
   constructor(
-    private dispatcher:Dispatcher) {
+    private dispatcher:Dispatcher,
+    private eventStore:EventStore) {
 
     // get
     window.localStorage.removeItem('fc-events');
@@ -339,7 +506,33 @@ class DummyTimesheetComponent {
 
     console.log("DummyTimesheetComponent loaded events", events);
 
-    this.timesheetStore = new TimesheetStore('root', dispatcher);
+    this.timesheetStore = new TimesheetStore('root', dispatcher, eventStore);
+/*
+    var events = {
+
+    };*/
+
+    var evts = {
+      'root:entry1:secondary:person': [
+        [[], 1, 'namechange', 'name1'],
+        [1, 2, 'namechange', 'name2']
+      ],
+      'root:entry1:secondary:role': [
+        [[], 1, 'change', 'PIC']
+      ],
+      'root:entry1:secondary': [
+        [[['root:entry1:secondary:person', 2], ['root:entry1:secondary:role', 1]], 1, 'change', null]
+      ],
+      'root:entry1': [
+        [[], 1, 'create', null],
+        [[1, ['root:entry1:secondary', 1]], 2, 'change', null]
+      ],
+      'root': [
+        [[['root:entry1', 1]], 1, 'addentry', {index: 0, scope: 'root:entry1'}],
+        [[1, ['root:entry1', 2]], 2, 'change', {scope: 'root:entry1'}]
+      ]
+    };
+    this.eventStore.load(evts);
 
     var data = {
       entries: [
@@ -362,7 +555,8 @@ class DummyTimesheetComponent {
       ]
     };
 
-    this.timesheetStore.load(data);
+    //this.timesheetStore.load(data);
+    this.timesheetStore.load2(2);
     this.entries = this.timesheetStore.entryStores;
     this.dispatcher.register(this.timesheetStore.scope, 'changed', (data) => {
 
@@ -383,7 +577,7 @@ class DummyTimesheetComponent {
   selector: 'fc-app',
   //template: `<fc-timesheet>`,
   template: `<fc-dummytimesheet>`,
-  providers: [Dispatcher],
-  directives: [TimesheetComponent,DummyTimesheetComponent]
+  providers: [Dispatcher, EventStore],
+  directives: [DummyTimesheetComponent]
 })
 export class AppComponent {}

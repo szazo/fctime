@@ -107,7 +107,7 @@ class EventStore {
     var changes:any[] = [];
     var scopeEvents:any[] = this.data[scope];
 
-    console.log('getChanges scopeEvents', scopeEvents);
+    console.log('getChanges scopeEvents', scopeEvents, this.data);
 
     if (!scopeEvents) {
       return [];
@@ -249,7 +249,14 @@ export class SeatStore {
 
   private personSnapshot:any;
 
-  constructor(private scope:any, private dispatcher:IDispatcher) {
+  constructor(
+    public scope:any,
+    private dispatcher:IDispatcher,
+    private eventStore:EventStore) {
+  }
+
+  load2(rev:any) {
+
   }
 
   load(data:any) {
@@ -296,15 +303,32 @@ class EntryStore {
 
   load2(rev:any) {
 
-    console.log('EntryStore load2');
+    console.log('EntryStore load2: ', this.scope, rev);
     var changes = this.eventStore.getChanges(this.scope, rev);
+
+    var primaryRev = 0;
+    var secondaryRev = 0;
+
+    changes.forEach((x) => {
+      if (x.action == 'create') {
+        this.primarySeatStore = new SeatStore(this.scope + ':primary', this.dispatcher, this.eventStore);
+        this.secondarySeatStore = new SeatStore(this.scope + ':secondary', this.dispatcher, this.eventStore);
+      } else if (x.action == 'change') {
+
+        let target = x.payload.target;
+        if (target == 'secondary') {
+          //secondaryRev = x.get
+        }
+
+      }
+    })
 
     console.log('load2 changes', changes);
   }
 
   load(data:any) {
 
-    this.primarySeatStore = new SeatStore(this.scope + ':primary', this.dispatcher);
+    this.primarySeatStore = new SeatStore();
     this.dispatcher.register(this.scope + ':primary', 'changed', (data) => {
       this.actualPrimarySeatData = data;
       this.checkData();
@@ -380,12 +404,14 @@ class TimesheetStore {
         //let currentIndex = i;
         console.log('currentIndex', index);
 
-        var entryStore = new EntryStore(this.scope + ':entry' + index, this.dispatcher, this.eventStore);
-        entryStore.load2(entries[index]);
+        var entryScope = this.scope + ':entry' + (index + 1);
+
+        var entryStore = new EntryStore(entryScope, this.dispatcher, this.eventStore);
+        entryStore.load2(entries[index].rev);
 
         entryStores.push(entryStore);
 
-        this.dispatcher.register(this.scope + ':entry' + index, 'changed', (data) => {
+        this.dispatcher.register(entryScope, 'changed', (data) => {
           console.log('TimesheetStore EntryChanged', data);
 
           /*
@@ -525,7 +551,7 @@ class DummyTimesheetComponent {
       ],
       'root:entry1': [
         [[], 1, 'create', null],
-        [[1, ['root:entry1:secondary', 1]], 2, 'change', null]
+        [[1, ['root:entry1:secondary', 1]], 2, 'change', {target: 'secondary'}]
       ],
       'root': [
         [[['root:entry1', 1]], 1, 'addentry', {index: 0, scope: 'root:entry1'}],

@@ -14,9 +14,10 @@ export class Dispatcher implements IDispatcher {
 
   constructor() {
 
-    setInterval(() => {
+      setInterval(() => {
+    
 
-      if (this.queue.length > 0) {
+          if (this.queue.length > 0) {
         var item = this.queue.shift();
 
         var foundSubscribers = this.subscribers.filter((value) =>{

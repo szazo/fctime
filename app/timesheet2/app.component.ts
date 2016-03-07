@@ -13,12 +13,13 @@ import {TimesheetComponent, TimesheetStore} from './timesheet';
 })
 export class AppComponent2 {
 
-  constructor(private timesheetStore:TimesheetStore) {
-    timesheetStore.create('root');
+    constructor(private timesheetStore:TimesheetStore) {
+	timesheetStore.create('root');
 
     //var a:moment.MomentStatic = new moment.MomentStatic();
 
     //console.log(a);
+
 
 
     var now = moment();

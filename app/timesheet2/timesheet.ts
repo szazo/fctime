@@ -1,7 +1,8 @@
 import {Event, EventData, EventRef, EventStore} from './event-store';
 import {Dispatcher} from './dispatcher';
 import {Component, Input, Injectable} from 'angular2/core';
-import {EntryStore, EntryComponent} from './entry';
+import {EntryStore, EntryState, EntryComponent} from './entry';
+import {StoreManager, StoreFacade2} from './entry';
 
 @Injectable()
 export class TimesheetStore {
@@ -10,7 +11,11 @@ export class TimesheetStore {
   private state:TimesheetState;
 
   public entryStores:EntryStore[] = [];
+	private entries:StoreFacade2<EntryState>[];
 
+	private storeManager:StoreManager;
+	private storeComponentFacade:StoreComponentFacade;
+	
   constructor(
     private dispatcher:Dispatcher,
     private eventStore:EventStore
@@ -37,12 +42,19 @@ export class TimesheetStore {
 
   public addEntry() {
 
-    // megcsinaljuk az entry actor-t, es letrehozzuk
-    var id = '123'; // TODO: generate
+		var id = '123';
+		var scope = id;
 
-    var entryStore = new EntryStore(this.eventStore, this.dispatcher);
-    var ref = entryStore.create(id, id);
+		var entryStoreFacade = this.storeManager.createStore<EntryState>('entry', new EventRef(scope, 0));
 
+		entryStoreFacade.executeAction('create', id);
+
+		this.storeComponentFacade.register<EntryState>(scope,
+																									 (facade) =>{
+																										 // valtozott a gyerek store, frissiteni kell ezt is az uj allapotra
+																										 
+																									 });
+		
     var evt:EventData = {
       name: 'addentry',
       payload: ref

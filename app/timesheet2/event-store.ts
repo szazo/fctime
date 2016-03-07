@@ -5,6 +5,10 @@ export interface Store {
   ref:EventRef;
 }
 
+export interface Store2 {
+	load(ref:EventRef);
+}
+
 export interface Event {
   revision:number;
   name:string;

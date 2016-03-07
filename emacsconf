@@ -1,0 +1,65 @@
+(menu-bar-showhide-tool-bar-menu-customize-disable)
+
+;; (require 'color-theme)
+;; (color-theme-initialize)
+;;(color-theme-matrix)
+(load-theme 'wombat)
+
+(require 'package)
+(add-to-list 'package-archives
+						 '("melpa" . "https://melpa.org/packages/")
+						 '("marmalade" . "https://marmalade-repo.org/packages/"))
+
+
+;; (add-to-list 'package-archives
+;;	     '("melpa-stable" . "https://stable.melpa.org/packages/"))
+
+;; (setq package-archives 
+;;   '(("gnu" . "https://elpa.gnu.org/packages/")
+;; ("marmalade" . "https://marmalade-repo.org/packages/")
+;; ("melpa" . "https://melpa.org/packages/")))
+
+(package-initialize)
+
+(require 'flx-ido)
+(ido-mode 1)
+(ido-everywhere 1)
+(flx-ido-mode 1)
+;; disable ido faces to see flx highlights.
+(setq ido-enable-flex-matching t)
+(setq ido-use-faces nil)
+
+(projectile-global-mode)
+
+(add-hook 'prog-mode-hook 'paredit-everywhere-mode)
+
+(add-hook 'after-init-hook 'global-company-mode)
+
+;; (require 'auto-complete)
+;; (auto-complete-config-default)
+;; (require 'auto-complete-config-default)
+;; (global-auto-complete-mode t)
+
+;; (setq-default indent-tabs-mode nil)
+(setq-default tab-width 2)
+(setq-default c-basic-offset 1)
+
+;; (setq-default js-indent-level 2)
+;; alma(defvaralias 'c-basic-offset 'tab-width)
+(smart-tabs-insinuate 'c 'javascript)
+
+(setq-default typescript-indent-level 2)
+
+;; sample config
+(add-hook 'typescript-mode-hook
+          (lambda ()
+            (tide-setup)
+            (flycheck-mode +1)
+            (setq flycheck-check-syntax-automatically '(save mode-enabled))
+            (eldoc-mode +1)
+            ;; company is an optional dependency. You have to
+            ;; install it separately via package-install
+            (company-mode-on)))
+
+;; aligns annotation to the right hand side
+(setq company-tooltip-align-annotations t)

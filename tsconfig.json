@@ -1,13 +1,12 @@
 {
     "files": [
-      "typings/moment/moment.d.ts",
+				"typings/moment/moment.d.ts",
+				"typings/redux/redux.d.ts",
       "app/timesheet2/dispatcher.ts",
       "app/timesheet2/event-store.ts",
       "app/timesheet2/time.ts",
       "app/timesheet2/entry.ts",
-      "app/timesheet2/timesheet.ts",
-      "app/timesheet2/app.component.ts",
-      "app/app.component.ts",
+				"app/timesheet2/timesheet2.ts",
       "app/boot.ts"
     ],
     "compilerOptions": {

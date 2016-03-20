@@ -4,10 +4,6 @@
 				"typings/redux/redux.d.ts",
 				"typings/uuid/UUID.d.ts",
 				"node_modules/immutable/dist/immutable.d.ts",
-				"app/timesheet2/dispatcher.ts",
-				"app/timesheet2/event-store.ts",
-				"app/timesheet2/time.ts",
-				"app/timesheet2/entry.ts",
 				"app/timesheet2/timesheet2.ts",
 				"app/boot.ts"
     ],

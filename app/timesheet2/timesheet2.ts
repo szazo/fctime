@@ -232,12 +232,18 @@ function timesheetReducer(state: any, action:any) {
 	switch (action.type) {
 	case ADD_ENTRY:
 
-		console.log('ADD_ENTRY', state.toJSON());
-		
-		let entry = new Entry({id: action.id});
-		let newState = state.updateIn('items', (items) => items.push(entry));
+		console.log('ADD_ENTRY', state.toJSON(), action);
 
-		console.log('ADD_ENTRY_AFTER', newState.toJSON());
+		let entry = new Entry({id: action.id});
+		console.log('The items', state.items.push(entry));
+
+		let newEntries = state.items.push(entry);
+		let newState = state.set('items', newEntries);
+		
+	  // let newState = state.updateIn('items', (items) => items.push(entry)); // 
+		return newState;
+
+		// console.log('ADD_ENTRY_AFTER', newState.toJSON());
 	}
 }
 
@@ -311,7 +317,7 @@ function rootReducer(state: any, action: any) {
 		let sheets = state.timesheets;
 		sheets = sheets.update(sheets.findIndex(x=> x.id == action.id), timesheet => timesheetReducer(timesheet, action.action));
 
-		console.log('NEW ROOT STATE', sheets.toJs());
+		console.log('NEW ROOT STATE', sheets.toJSON());
 		
 		return {
 			timesheets: sheets

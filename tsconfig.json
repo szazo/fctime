@@ -2,7 +2,7 @@
     "files": [
 				"typings/moment/moment.d.ts",
 				"typings/redux/redux.d.ts",
-				"typings/uuid/UUID.d.ts",
+				"typings/node-uuid/node-uuid-cjs.d.ts",
 				"node_modules/immutable/dist/immutable.d.ts",
 				"app/timesheet2/timesheet2.ts",
 				"app/boot.ts"

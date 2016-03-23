@@ -27,14 +27,16 @@
 				 //defaultJSExtensions: true,
 				 map: {
 						 redux: 'node_modules/redux/dist/redux.js',
-//						 redux-devtools: 'node_modules/redux-devtools/src/index.js',
-						 UUID: 'node_modules/uuid/uuid.js',
-						 rng: 'node_modules/uuid/rng.js',
-						 immutable: 'node_modules/immutable/dist/immutable.js'
+						 'node-uuid': 'node_modules/uuid',
+						 immutable: 'node_modules/immutable/dist/immutable.js',
 				 },
 				 packages: {
-						 uuid: {
-								 defaultExtension: 'js'
+						 'node-uuid': {
+								 main: 'uuid.js',
+								 format: 'cjs',
+								 map: {
+										 './rng': 'node_modules/uuid/rng-browser.js'
+								 }
 						 },
 						 app: {
 								 //									defaultJSExtensions: true,

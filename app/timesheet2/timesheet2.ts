@@ -1,6 +1,9 @@
+/// <reference path="../../typings/uuid/UUID.d.ts" />
+
+
 import {Component, Input, Output, Injectable, EventEmitter, ChangeDetectionStrategy} from 'angular2/core';
 import {createStore, applyMiddleware, Store, compose} from 'redux';
-//import {generate} from 'UUID'; 
+import {v4} from 'node-uuid'; 
 import {List, Record, Map} from 'immutable';
 // import {devTools} from 'redux-devtools';
 
@@ -20,6 +23,8 @@ interface PersonState {
 	knownPersonId: number,
 	unknownPersonName: string
 }
+
+const CREATE_PERSON = 'create_person';
 
 
 const CHANGE_TIMESHEET = 'change_timesheet';
@@ -44,6 +49,16 @@ function addEntry(id:string) {
 	return {
 		type: ADD_ENTRY,
 		id
+	}
+}
+
+function createPerson(id:string, name:string, club:string, level:string) {
+	return {
+		type: CREATE_PERSON,
+		id,
+		name,
+		club,
+		level
 	}
 }
 
@@ -128,6 +143,20 @@ class Person extends PersonRecord {
 	constructor(props) {
 		super(props);
 	}
+}
+
+const PersonDataRecord = Record({
+	id: 0,
+	name: '',
+	club: 'Endresz',
+	level: ''
+});
+
+class PersonData extends PersonDataRecord {
+	constructor(props) {
+		super(props);
+	}
+
 }
 
 const RoleRecord = Record({
@@ -313,8 +342,21 @@ function timesheetReducer(state: any, action:any) {
 	}
 }
 
+function personManagementReducer(state: any, action: any) {
+
+	let personData = new PersonData({
+		id: action.id,
+		name: action.name,
+		club: action.club,
+		level: action.level
+	});
+	
+	return state.persons.push(personData);
+}
+
 const initialState = new Root({
-	timesheets: List([new Timesheet({id: 'timesheet1'})])
+	timesheets: List([new Timesheet({id: 'timesheet1'})]),
+	persons: List([])
 });
 
 function rootReducer(state: any, action: any) {
@@ -330,10 +372,13 @@ function rootReducer(state: any, action: any) {
 		sheets = sheets.update(sheets.findIndex(x=> x.id == action.id), timesheet => timesheetReducer(timesheet, action.action));
 
 		console.log('NEW ROOT STATE', sheets.toJSON());
+
+		return state.set('timesheets', sheets);
+
+	case CREATE_PERSON:
+
+		return personManagementReducer(state, action);
 		
-		return {
-			timesheets: sheets
-		};
 	default:
 		return state;
 	}
@@ -362,6 +407,23 @@ class FcStore {
 	public getState(): any {
 		return this.store.getState();
 	}	
+}
+
+@Injectable()
+class PersonService {
+
+	constructor(private store: FcStore)
+	{
+	}
+
+	public findPerson(pattern:string) {
+		let persons = this.store.getState().persons;
+
+		let regex = new RegExp('.*' + pattern + '.*');
+		let found = persons.toArray().find(x => regex.test(x));
+
+		alert('found');
+	}
 }
 
 @Component({
@@ -403,15 +465,14 @@ export class PersonComponent {
 
 	private personName():string {
 
+		switch (this.state.type)  {
+		case PersonStateType.empty:
+			return '';
+		case PersonStateType.unknown:
 			return this.state.unknownPersonName;
-		// switch (this.state.type)  {
-		// case PersonStateType.empty:
-		// 	return '';
-		// case PersonStateType.unknown:
-		// 	return this.state.unknownPersonName;
-		// case PersonStateType.known:
-		// 	return 'known: ' + this.state.knownPersonId
-		// };
+		case PersonStateType.known:
+			return 'known: ' + this.state.knownPersonId
+		};
 	}
 	
 	private changeName(name:string):void {
@@ -593,6 +654,16 @@ export class AppComponent2 {
 	static timesheetId = 'timesheet1';
 	
 	constructor(private store:FcStore) {
+		this.createDummyPersons();
+	}
+
+	private createDummyPersons() {
+
+		let id = v4();
+		alert(id);
+		
+//		this.store.dispatch(createPerson())
+
 	}
 
 	private timesheetState() {

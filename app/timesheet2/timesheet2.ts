@@ -8,6 +8,7 @@ import {v4} from 'node-uuid';
 import {List, Record, Map} from 'immutable';
 // import {devTools} from 'redux-devtools';
 import { TYPEAHEAD_DIRECTIVES } from 'ng2-bootstrap';
+import moment from 'moment';
 
 // createStore = compose(
 // 	devTools(),
@@ -73,6 +74,13 @@ const SELECT_KNOWN_PERSON = 'select_known_person';
 // inside role
 const SELECT_ROLE = "select_role";
 
+// inside glider time
+const TAKEOFF = 'takeoff';
+const LAND = 'land';
+const CHANGE_TAKEOFF_TIME = 'change_takeoff_time';
+const CHANGE_LAND_TIME = 'change_land_time';
+const CHANGE_AIR_TIME = 'change_air_time';
+
 function addEntry(id:string) {
 	return {
 		type: ADD_ENTRY,
@@ -122,6 +130,42 @@ function selectRole(id:any) {
 	return {
 		type: SELECT_ROLE,
 		id
+	}
+}
+
+// glider time actions
+function takeoff(time:string) {
+	return {
+		type: TAKEOFF,
+		time
+	}
+}
+
+function land(time:string) {
+	return {
+		type: LAND,
+		time
+	}
+}
+
+function changeTakeoffTime(time:string) {
+	return {
+		type: CHANGE_TAKEOFF_TIME,
+		time
+	}
+}
+
+function changeLandTime(time:string) {
+	return {
+		type: CHANGE_LAND_TIME,
+		time
+	}
+}
+
+function changeAirTime(time:string) {
+	return {
+		type: CHANGE_AIR_TIME,
+		time
 	}
 }
 
@@ -294,8 +338,21 @@ const Plane = PlaneRecord;
 // 	}
 // }
 
+enum GliderTimePhase {
+	none,
+	flying,
+	landed
+}
+
+interface GliderTimeState {
+	phase: GliderTimePhase,
+	takeoffTime: string,
+	landTime: string,
+	flyTime: string
+}
+
 const GliderTimeRecord = Record({
-	state: 'flying',
+	phase: GliderTimePhase.none,
 	takeoffTime: '',
 	landTime: '',
 	flyTime: ''
@@ -356,10 +413,6 @@ function planeReducer(state: any, action: any) {
 	return state;
 }
 
-function gliderTimeReducer(state: any, action: any) {
-	return state;
-}
-
 function roleReducer(state: any, action: any) {
 	switch (action.type) {
 
@@ -369,6 +422,31 @@ function roleReducer(state: any, action: any) {
 		
 	default:
 		return state;
+	}
+}
+
+function gliderTimeReducer(state: any, action: any) {
+
+	switch (action.type) {
+
+	case TAKEOFF:
+
+		state = state.set('phase', GliderTimePhase.flying);
+		state = state.set('takeoffTime', action.time);
+
+		return state;
+
+	case LAND:
+
+		state = state.set('phase', GliderTimePhase.landed);
+		state = state.set('landTime', action.time);
+
+		return state;
+
+	default:
+
+		return state;
+		
 	}
 }
 
@@ -545,13 +623,47 @@ const middleware = store => next => action => {
 	next(action);
 }
 
+const actionLogMiddleware = store => next => action => {
+
+	console.log('store', store);
+	console.log('next', next);
+	console.log('action', action);
+
+	next(action);
+}
+
+class ActionLogItem {
+	id: string;
+	action:any;
+}
+
+class ActionLog {
+
+	private stateJson;
+	
+	public add(action:any, nextState:any)
+	{
+		var logItem = new ActionLogItem();
+		logItem.id = v4();
+		logItem.action = action;
+	}
+
+	private store(logItem:ActionLogItem) {
+
+//		logItem.toJSON();
+	}
+}
+
 @Injectable()
 class FcStore {
 
 	private store:Store;
 	
 	constructor() {
-		this.store = createStore(rootReducer, applyMiddleware(middleware));
+		this.store = createStore(
+			rootReducer,
+			applyMiddleware(middleware, actionLogMiddleware)
+		);
 	}
 
 	public dispatch(action: any): any {
@@ -637,12 +749,87 @@ class PersonService {
 @Component({
 	selector: 'fc-glider-time',
 	template: `
-    <div>GliderTime</div>
+    <div>
+
+      <div *ngIf="isNone()">
+        <button class="takeoff-button" (click)="takeoff()">Felszállás</button>
+      </div>
+      <div *ngIf="isFlying() || isLanded()">
+        <input type="text" [value]="takeoffTime()" size="6">
+      </div>
+
+      <div *ngIf="isFlying()">
+        <button class="land-button" (click)="land()">Leszállt</button>
+      </div>
+      <div *ngIf="isLanded()">
+        <input type="text" [value]="landTime()" size="6">
+      </div>
+
+      <div *ngIf="isFlying()" class="flying-air-time">
+        {{flyingAirTime()}}
+      </div>
+      <div *ngIf="isLanded()">
+        <input type="text" [value]="airTime()" size="6">
+      </div>
+    </div>
 `,
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class GliderTimeComponent {
 
+	@Input() state:GliderTimeState;
+	@Output() action = new EventEmitter();
+
+	constructor() {
+		alert(moment());
+	}
+	
+	private takeoff() {
+
+		let currentTime = moment().format();		
+		this.action.emit(takeoff(currentTime));
+		
+	}
+
+	private land() {
+
+		let currentTime = moment().format();
+		this.action.emit(land(currentTime));
+	}
+
+	private takeoffTime():string {
+		return this.state.takeoffTime;
+	}
+
+	private landTime():string {
+		return this.state.landTime;
+	}
+
+	private flyingAirTime():string {
+
+		return this.airTime();
+	}
+
+	private airTime() {
+
+    var takeoff = moment(this.state.takeoffTime);
+    var land = moment(this.state.landTime);
+    var diff = land.diff(takeoff, 'minutes');
+		
+		return diff.toString();
+	}
+
+	private isNone():boolean {
+		return this.state.phase == GliderTimePhase.none;
+	}
+
+	private isFlying():boolean {
+		return this.state.phase == GliderTimePhase.flying;
+	}
+	
+	private isLanded():boolean {
+		return this.state.phase == GliderTimePhase.landed;
+	}
 }
 
 @Component({

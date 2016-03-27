@@ -2,10 +2,12 @@
 
 
 import {Component, Input, Output, Injectable, EventEmitter, ChangeDetectionStrategy} from 'angular2/core';
+import {CORE_DIRECTIVES, FORM_DIRECTIVES} from 'angular2/common';
 import {createStore, applyMiddleware, Store, compose} from 'redux';
 import {v4} from 'node-uuid'; 
 import {List, Record, Map} from 'immutable';
 // import {devTools} from 'redux-devtools';
+import { TYPEAHEAD_DIRECTIVES } from 'ng2-bootstrap';
 
 // createStore = compose(
 // 	devTools(),
@@ -20,13 +22,29 @@ enum PersonStateType {
 
 interface PersonState {
 	type: PersonStateType,
-	knownPersonId: number,
+	knownPersonId: string,
 	unknownPersonName: string
 }
 
+enum PlaneStateType {
+	empty,
+	unknown,
+	known
+}
+
+interface PlaneState {
+	type: PlaneStateType;
+	knownPlaneId: string,
+	unknownPlaneRegistration: string
+}
+
+// person management
 const CREATE_PERSON = 'create_person';
 
+// plane management
+const CREATE_PLANE = 'create_plane';
 
+// inside time
 const CHANGE_TIMESHEET = 'change_timesheet';
 
 // inside timesheet
@@ -41,9 +59,19 @@ const CHANGE_GLIDER_TIME = 'change_glider_time';
 
 // inside seat
 const CHANGE_PERSON = 'change_person';
+const CHANGE_ROLE = 'change_role';
+
+// inside plane
+const SELECT_KNOWN_PLANE = 'select_known_plane';
+const ENTER_PLANE_REGISTRATION = 'enter_plane_registration';
 
 // inside person
 const CHANGE_NAME = 'change_name';
+const CLEAR_PERSON = 'clear_person';
+const SELECT_KNOWN_PERSON = 'select_known_person';
+
+// inside role
+const SELECT_ROLE = "select_role";
 
 function addEntry(id:string) {
 	return {
@@ -53,6 +81,7 @@ function addEntry(id:string) {
 }
 
 function createPerson(id:string, name:string, club:string, level:string) {
+
 	return {
 		type: CREATE_PERSON,
 		id,
@@ -62,10 +91,59 @@ function createPerson(id:string, name:string, club:string, level:string) {
 	}
 }
 
+// plane management
+function createPlane(id:string, registration:string, type: string) {
+
+	return {
+		type: CREATE_PLANE,
+		id,
+		registration,
+		planeType: type
+	}
+}
+
+// plane actions
+function selectKnownPlane(id:any) {
+	return {
+		type: SELECT_KNOWN_PLANE,
+		id
+	}
+}
+
+function enterPlaneRegistration(registration:string) {
+	return {
+		type: ENTER_PLANE_REGISTRATION,
+		registration
+	}
+}
+
+// role actions
+function selectRole(id:any) {
+	return {
+		type: SELECT_ROLE,
+		id
+	}
+}
+
+// person actions
+
 function changeName(name:string) {
 	return {
 		type: CHANGE_NAME,
 		name
+	}
+}
+
+function clearPerson() {
+	return {
+		type: CLEAR_PERSON
+	}
+}
+
+function selectKnownPerson(id:any) {
+	return {
+		type: SELECT_KNOWN_PERSON,
+		id
 	}
 }
 
@@ -80,6 +158,13 @@ function changeTimesheet(id:any, action:any) {
 function changePerson(action: any) {
 	return {
 		type: CHANGE_PERSON,
+		action
+	}
+}
+
+function changeRole(action: any) {
+	return {
+		type: CHANGE_ROLE,
 		action
 	}
 }
@@ -135,7 +220,7 @@ function entry(state:any, action: any) {
 
 const PersonRecord = Record({
 	type: PersonStateType.empty,
-	knownPersonId: 0,
+	knownPersonId: '',
 	unknownPersonName: ''
 });
 
@@ -146,50 +231,68 @@ class Person extends PersonRecord {
 }
 
 const PersonDataRecord = Record({
-	id: 0,
+	id: '',
 	name: '',
 	club: 'Endresz',
 	level: ''
 });
 
+const PersonData = PersonDataRecord;
+
+const PlaneDataRecord = Record({
+	id: '',
+	registration: '',
+	type: ''
+});
+
+const PlaneData = PlaneDataRecord;
+
+/*
 class PersonData extends PersonDataRecord {
 	constructor(props) {
 		super(props);
 	}
 
-}
+}*/
 
 const RoleRecord = Record({
 	id: 0
 });
 
-class Role extends RoleRecord {
-	constructor(props) {
-		super(props);
-	}
-}
+const Role = RoleRecord;
+
+
+// class Role extends RoleRecord {
+// 	constructor(props) {
+// 		super(props);
+// 	}
+// }
 
 const SeatRecord = Record({
 	person: new Person({}),
 	role: new Role({})
 });
 
-class Seat extends SeatRecord {
-	constructor(props) {
-		super(props);
-	}
-}
+const Seat = SeatRecord;
+
+// class Seat extends SeatRecord {
+// 	constructor(props) {
+// 		super(props);
+// 	}
+// }
 
 const PlaneRecord = Record({
 	type: 'known',
 	knownPlaneId: 1
 });
 
-class Plane extends PlaneRecord {
-	constructor(props) {
-		super(props);
-	}
-}
+const Plane = PlaneRecord;
+
+// class Plane extends PlaneRecord {
+// 	constructor(props) {
+// 		super(props);
+// 	}
+// }
 
 const GliderTimeRecord = Record({
 	state: 'flying',
@@ -198,11 +301,13 @@ const GliderTimeRecord = Record({
 	flyTime: ''
 });
 
-class GliderTime extends GliderTimeRecord {
-	constructor (props) {
-		super(props);
-	}
-}
+const GliderTime = GliderTimeRecord;
+
+// class GliderTime extends GliderTimeRecord {
+// 	constructor (props) {
+// 		super(props);
+// 	}
+// }
 
 const EntryRecord = Record({
 	id: '',
@@ -212,32 +317,40 @@ const EntryRecord = Record({
 	gliderTime: new GliderTime({})
 });
 
-class Entry extends EntryRecord {
-	constructor(props) {
-		super(props);
-	}
-}
+const Entry = EntryRecord;
+
+// class Entry extends EntryRecord {
+// 	constructor(props) {
+// 		super(props);
+// 	}
+// }
 
 const TimesheetRecord = Record({
 	id: '',
 	items: List([])
 });
 
-class Timesheet extends TimesheetRecord {
-	constructor(props) {
-		super(props);
-	}
-}
+const Timesheet = TimesheetRecord;
+
+// class Timesheet extends TimesheetRecord {
+// 	constructor(props) {
+// 		super(props);
+// 	}
+// }
 
 const RootRecord = Record({
-	timesheets: List([])
+	timesheets: List([]),
+	persons: List([]),
+	planes: List([])
 });
 
-class Root extends RootRecord {
-	constructor(props) {
-		super(props);
-	}
-}
+const Root = RootRecord;
+
+// class Root extends RootRecord {
+// 	constructor(props) {
+// 		super(props);
+// 	}
+// }
 
 function planeReducer(state: any, action: any) {
 	return state;
@@ -247,15 +360,37 @@ function gliderTimeReducer(state: any, action: any) {
 	return state;
 }
 
+function roleReducer(state: any, action: any) {
+	switch (action.type) {
+
+	case SELECT_ROLE:
+
+		return action.id;
+		
+	default:
+		return state;
+	}
+}
+
 const personReducer = (state: any, action: any) => {
 
 	switch (action.type) {
+		
 	case CHANGE_NAME:
 
 		state = state.set('type', PersonStateType.unknown);
 		state = state.set('unknownPersonName', action.name);
+		state = state.set('knownPersonId', '');
 
 		return state;
+	case SELECT_KNOWN_PERSON:
+
+		state = state.set('type', PersonStateType.known);
+		state = state.set('unknownPersonName', '');
+		state = state.set('knownPersonId', action.id);
+
+		return state;
+		
 	default:
 		return state;
 	}	
@@ -263,15 +398,14 @@ const personReducer = (state: any, action: any) => {
 
 function seatReducer(state: any, action: any) {
 
-	console.log('seatReducer', action, state.toJSON());
-	
 	switch (action.type) {
+
 	case CHANGE_PERSON:
+		return state.update('person', personState => personReducer(personState, action.action));
 
-		console.log('changing person');
+	case CHANGE_ROLE:
+		return state.update('role', roleState => roleReducer(roleState, action.action));
 
-		return state.update('person', value => personReducer(value, action.action));
-//		return state.set('person', personReducer(state.person, action.action));
 	default:
 		return state;
 	}
@@ -309,7 +443,6 @@ function timesheetReducer(state: any, action:any) {
 		console.log('ADD_ENTRY', state.toJSON(), action);
 
 		let entry = new Entry({id: action.id});
-		console.log('The items', state.items.push(entry));
 
 		let newEntries = state.items.push(entry);
 		let newState = state.set('items', newEntries);
@@ -331,7 +464,7 @@ function timesheetReducer(state: any, action:any) {
 			// let sheets = state.timesheets;
 			// sheets = sheets.update(sheets.findIndex(x=> x.id == action.id), timesheet => timesheetReducer(timesheet, action.action));
 
-			console.log('NEW TIMESHEET STATE', newState.toJSON());
+//			console.log('NEW TIMESHEET STATE', newState.toJSON());
 			
 
 			// console.log('ADD_ENTRY_AFTER', newState.toJSON());
@@ -350,8 +483,24 @@ function personManagementReducer(state: any, action: any) {
 		club: action.club,
 		level: action.level
 	});
-	
-	return state.persons.push(personData);
+
+	let persons = state.persons.push(personData);
+	let newState = state.set('persons', persons);
+
+	console.debug('NEWSTATE', newState);
+
+	return newState;
+}
+
+function planeManagementReducer(state: any, action: any) {
+
+	let planeData = new PlaneData({
+		id: action.id,
+		registration: action.registration,
+		planeType: action.planeType
+	});
+
+	return state.set('planes', state.planes.push(planeData));
 }
 
 const initialState = new Root({
@@ -362,6 +511,7 @@ const initialState = new Root({
 function rootReducer(state: any, action: any) {
 
 	if (state == undefined) {
+
 		return initialState;
 	}
 
@@ -371,13 +521,17 @@ function rootReducer(state: any, action: any) {
 		let sheets = state.timesheets;
 		sheets = sheets.update(sheets.findIndex(x=> x.id == action.id), timesheet => timesheetReducer(timesheet, action.action));
 
-		console.log('NEW ROOT STATE', sheets.toJSON());
+		console.debug('NEW ROOT STATE', sheets.toJSON());
 
 		return state.set('timesheets', sheets);
 
 	case CREATE_PERSON:
 
 		return personManagementReducer(state, action);
+
+	case CREATE_PLANE:
+
+		return planeManagementReducer(state, action);
 		
 	default:
 		return state;
@@ -386,7 +540,7 @@ function rootReducer(state: any, action: any) {
 
 const middleware = store => next => action => {
 
-	console.log('action:', action);
+	console.debug('action:', action);
 
 	next(action);
 }
@@ -409,6 +563,50 @@ class FcStore {
 	}	
 }
 
+enum RoleType {
+	none,
+	passenger,
+	pic,
+	instructor,
+	student
+}
+
+@Injectable()
+class RoleService {
+
+	static roleList = [
+		{ id: RoleType.passenger, name: 'Utas' },
+		{ id: RoleType.pic, name: 'PIC' },
+		{ id: RoleType.instructor, name: 'Oktató' },
+		{ id: RoleType.student, name: 'Oktatás / ellenőrzés' }
+	];
+
+	public list(filter:RoleType[]) {
+		return RoleService.roleList;
+	}
+}
+
+@Injectable()
+class PlaneService {
+
+	constructor(private store: FcStore) {
+	}
+
+	public createPlane(id:any, registration:string, type:string) {
+		this.store.dispatch(createPlane(id, registration, type));
+	}
+	
+	public planeList() {
+		return this.store.getState().planes.toArray();
+	}
+
+	public findById(id:any):any {
+		var found = this.store.getState().planes.toArray().find(x => x.id == id);
+
+		return found;
+	}	
+}
+
 @Injectable()
 class PersonService {
 
@@ -416,14 +614,24 @@ class PersonService {
 	{
 	}
 
-	public findPerson(pattern:string) {
-		let persons = this.store.getState().persons;
-
-		let regex = new RegExp('.*' + pattern + '.*');
-		let found = persons.toArray().find(x => regex.test(x));
-
-		alert('found');
+	public personList() {
+		return this.store.getState().persons.toArray();
 	}
+
+	public findById(id:any):any {
+		var found = this.store.getState().persons.toArray().find(x => x.id == id);
+
+		return found;
+	}
+
+	// public findPerson(pattern:string) {
+	// 	let persons = this.store.getState().persons;
+
+	// 	let regex = new RegExp('.*' + pattern + '.*');
+	// 	let found = persons.toArray().find(x => regex.test(x));
+
+	// 	alert('found');
+	// }
 }
 
 @Component({
@@ -440,12 +648,56 @@ export class GliderTimeComponent {
 @Component({
 	selector: 'fc-plane',
 	template: `
-    <div>plane</div>
+    <input
+      #registration
+      [typeahead]="typeaheadList()"
+      [(ngModel)]="selected"
+      [typeaheadOptionField]="'registration'"
+      (typeaheadOnSelect)="typeaheadSelected($event.item)"
+      (change)="enterRegistration(registration.value)"
+      [value]="planeRegistration()">
 `,
-	changeDetection: ChangeDetectionStrategy.OnPush
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	directives: [ TYPEAHEAD_DIRECTIVES ]
 })
 export class PlaneComponent {
-	
+
+	// not used but necessary for the typeahead component
+	private selected:string = '';
+
+	@Input() state:PlaneState;
+	@Output() action:EventEmitter<any> = new EventEmitter<any>();
+
+	constructor(private planeService:PlaneService) {
+	}
+
+	private typeaheadList() {
+		return this.planeService.planeList();
+	}
+
+	private typeaheadSelected(item:any) {
+		this.action.emit(selectKnownPlane(item.id));
+	}
+
+	private enterRegistration(registration:string) {
+		this.action.emit(enterPlaneRegistration(registration));
+	}
+
+	private planeRegistration() {
+
+		switch (this.state.type) {
+
+		case PlaneStateType.empty:
+			return '';
+
+		case PlaneStateType.known:
+			return this.planeService.findById(this.state.knownPlaneId).registration;
+
+		case PlaneStateType.unknown:
+
+			return this.state.unknownPlaneRegistration;
+		}
+	}
 }
 
 interface Action {
@@ -454,15 +706,46 @@ interface Action {
 @Component({
 	selector: 'fc-person',
 	template: `
-    <input #name (change)="changeName(name.value)" [value]="personName()">
+    <input 
+      #name
+      [typeahead]="typeaheadList()" 
+      [(ngModel)]="selected" 
+      [typeaheadOptionField]="'name'"
+      (typeaheadOnSelect)="typeaheadSelected($event.item)"
+      (change)="changeName(name.value)"
+      [value]="personName()"
+   > 
 `,
-	changeDetection: ChangeDetectionStrategy.OnPush
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	directives: [ CORE_DIRECTIVES, FORM_DIRECTIVES, TYPEAHEAD_DIRECTIVES ]
 })
 export class PersonComponent {
 
+	private selected:string = '';
+	
 	@Input() state:PersonState;
 	@Output() action:EventEmitter<any> = new EventEmitter<any>();
 
+	constructor(private personService:PersonService) {
+	}
+	
+	private typeaheadList() {
+		return this.personService.personList();
+	}
+
+	private typeaheadSelected(item) {
+		this.action.emit(selectKnownPerson(item.id));
+	}
+
+	private changeName(name:string) {
+
+		if (name.trim().length == 0) {
+			this.action.emit(clearPerson());
+		}
+
+		this.action.emit(changeName(name));
+	}
+	
 	private personName():string {
 
 		switch (this.state.type)  {
@@ -471,33 +754,39 @@ export class PersonComponent {
 		case PersonStateType.unknown:
 			return this.state.unknownPersonName;
 		case PersonStateType.known:
-			return 'known: ' + this.state.knownPersonId
+
+			let person = this.personService.findById(this.state.knownPersonId);
+			return person.name;
 		};
-	}
-	
-	private changeName(name:string):void {
-		let action = changeName(name);
-		console.log('person action to emit', action);
-		this.action.emit(action);
 	}
 }
 
 @Component({
 	selector: 'fc-role',
 	template: `
-    <div>role</div>
+    <select #roleSelect (change)="roleSelected(roleSelect.value)">
+      <option *ngFor="#role of allowedRoles" value="{{role.id}}">{{role.name}}</option>
+    </select>
 `,
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RoleComponent {
 
+	@Input() state;
+	@Input() allowedRoles;
+	
+	@Output() action = new EventEmitter();
+
+	private roleSelected(id:any) {
+		this.action.emit(selectRole(id));
+	}
 }
 
 @Component({
 	selector: 'fc-seat',
 	template: `
     <fc-person [state]="personState()" (action)="personAction($event)"></fc-person>
-    <fc-role></fc-role>
+    <fc-role [state]="roleState()" [allowedRoles]="allowedRoles" (action)="roleAction($event)"></fc-role>
   `,
 	directives: [PersonComponent, RoleComponent],
 	changeDetection: ChangeDetectionStrategy.OnPush
@@ -505,6 +794,8 @@ export class RoleComponent {
 export class SeatComponent {
 
 	@Input() state;
+	@Input() allowedRoles;
+	
 	@Output() action = new EventEmitter();
 
 	private personState() {
@@ -514,6 +805,14 @@ export class SeatComponent {
 	private personAction(action) {
 		this.action.emit(changePerson(action));
 	}
+
+	private roleState() {
+		return this.state.role;
+	}
+
+	private roleAction(action) {
+		this.action.emit(changeRole(action));
+	}
 }
 
 @Component(
@@ -521,8 +820,8 @@ export class SeatComponent {
 		selector: 'fc-entry',
 		template:
 		`
-      <fc-seat [state]="state.primarySeat" (action)="primarySeatAction($event)"></fc-seat>
-      <fc-seat [state]="state.secondarySeat" (action)="secondarySeatAction($event)"></fc-seat>
+      <fc-seat [state]="state.primarySeat" [allowedRoles]="primarySeatRoles()" (action)="primarySeatAction($event)"></fc-seat>
+      <fc-seat [state]="state.secondarySeat" [allowedRoles]="secondarySeatRoles()" (action)="secondarySeatAction($event)"></fc-seat>
       <fc-plane [state]="state.plane" (action)="planeAction($event)"></fc-plane>
       <fc-glider-time [state]="state.gliderTime" (action)="gliderTimeAction($event)"></fc-glider-time>
     `,
@@ -534,6 +833,17 @@ export class EntryComponent2 {
 	@Input() state:any;
 	@Output() action = new EventEmitter();
 
+	constructor(private roleService:RoleService) {
+	}
+	
+	private primarySeatRoles() {
+		return this.roleService.list([]);
+	}
+
+	private secondarySeatRoles() {
+		return this.roleService.list([]);
+	}
+	
 	private primarySeatAction(action) {
 		this.action.emit(changePrimarySeat(action));
 	}
@@ -576,8 +886,6 @@ export class TimesheetComponent2 {
 
 	private entryAction(entry, action) {
 
-		console.log('entryChanged', action);
-		
 		this.action.emit(changeEntry(entry.id, action));
 	}
 
@@ -645,7 +953,7 @@ export class TimesheetComponent2 {
       <fc-timesheet [state]="timesheetState()" (action)="timesheetAction($event)"></fc-timesheet>
     </div>
   `,
-	providers: [FcStore],
+	providers: [FcStore, PersonService, RoleService, PlaneService],
 	directives: [TimesheetComponent2],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -653,17 +961,41 @@ export class AppComponent2 {
 
 	static timesheetId = 'timesheet1';
 	
-	constructor(private store:FcStore) {
+	constructor(
+		private store:FcStore,
+		private planeService:PlaneService) {
+
 		this.createDummyPersons();
+		this.createDummyPlanes();
+	}
+
+	private createDummyPlanes() {
+		
+		this.planeService.createPlane(this.uuid(), 'HA-5560', 'R22');
+		this.planeService.createPlane(this.uuid(), 'HA-5524', 'Astir CS');
+		this.planeService.createPlane(this.uuid(), 'HA-5065', 'KA-7');
 	}
 
 	private createDummyPersons() {
 
-		let id = v4();
-		alert(id);
+		this.dispatch(createPerson(this.uuid(), 'Oláh Attila', 'Endresz', 'C'));
+		this.dispatch(createPerson(this.uuid(), 'Bagó Tomi', 'Endresz', 'C'));
+		this.dispatch(createPerson(this.uuid(), 'Juhász Dani', 'Endresz', 'C'));
+		this.dispatch(createPerson(this.uuid(), 'Sall Pisti', 'Endresz', 'C'));
+		this.dispatch(createPerson(this.uuid(), 'Tóth Balázs', 'Endresz', 'C'));
 		
+		console.log('record', typeof(PersonDataRecord));
+		console.log(this.store.getState().toJSON());
 //		this.store.dispatch(createPerson())
 
+	}
+
+	private dispatch(action:any) {
+		this.store.dispatch(action);
+	}
+
+	private uuid() {
+		return v4();
 	}
 
 	private timesheetState() {
@@ -676,8 +1008,6 @@ export class AppComponent2 {
 	}
 
 	private timesheetAction(action) {
-
-		console.log('TimesheetChanged', action);
 
 		this.store.dispatch(changeTimesheet(AppComponent2.timesheetId, action));
 	}

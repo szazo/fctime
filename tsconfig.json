@@ -4,11 +4,12 @@
 				"typings/redux/redux.d.ts",
 				"typings/node-uuid/node-uuid-cjs.d.ts",
 				"node_modules/immutable/dist/immutable.d.ts",
+				"node_modules/ng2-bootstrap/ng2-bootstrap.d.ts",
 				"app/timesheet2/timesheet2.ts",
 				"app/boot.ts"
     ],
     "compilerOptions": {
-        "target": "ES5",
+        "target": "ES6",
         "module": "system",
         "moduleResolution": "node",
         "noImplicitAny": false,

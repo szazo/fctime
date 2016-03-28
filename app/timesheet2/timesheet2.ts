@@ -15,6 +15,12 @@ import moment from 'moment';
 // 	createStore
 // );
 
+class uuid {
+	public static generate() {
+		return v4();
+	}
+}
+
 enum PersonStateType {
 	empty,
 	unknown,
@@ -491,9 +497,6 @@ function seatReducer(state: any, action: any) {
 
 function itemReducer(state:any, action: any) {
 
-
-	console.log('itemReducer', action, state.toJSON());
-	
 	switch (action.type) {
 
 	case CHANGE_PRIMARY_SEAT:
@@ -532,8 +535,6 @@ function timesheetReducer(state: any, action:any) {
 		}
 	case CHANGE_ENTRY:
 		{
-			console.log('CHANGE_ENTRY', state.toJSON(), action);
-
 			let items = state.items;
 			let newItems = items.update(items.findIndex(x => x.id == action.id), item => itemReducer(item, action.action));
 
@@ -623,35 +624,74 @@ const middleware = store => next => action => {
 	next(action);
 }
 
-const actionLogMiddleware = store => next => action => {
-
-	console.log('store', store);
-	console.log('next', next);
-	console.log('action', action);
-
-	next(action);
-}
-
 class ActionLogItem {
 	id: string;
 	action:any;
 }
 
+@Injectable()
 class ActionLog {
 
-	private stateJson;
+	private logItems:ActionLogItem[] = [];
+	private isEnabled:boolean = true;
+
+	public clear() {
+    window.localStorage.removeItem('fc-actions');
+		this.logItems = [];
+	}
 	
-	public add(action:any, nextState:any)
+	public load() {
+		let read = window.localStorage.getItem('fc-actions');
+
+		if (read) {
+			this.logItems = JSON.parse(read);
+		} else {
+			this.logItems = [];
+		}
+
+		//console.log('loaded items', this.logItems);
+	}
+
+	public actions():ActionLogItem[] {
+		return this.logItems;
+	}
+	
+	public middleware = store => next => action => {
+		next(action);
+
+		if (this.isEnabled) {
+			this.add(action, null);
+		}
+	}
+
+	public enable() {
+		this.isEnabled = true;
+	}
+
+	public disable() {
+		this.isEnabled = false;
+	}
+
+	private add(action:any, nextState:any)
 	{
 		var logItem = new ActionLogItem();
 		logItem.id = v4();
 		logItem.action = action;
+
+		this.store(logItem);
 	}
 
 	private store(logItem:ActionLogItem) {
 
+		this.logItems.push(logItem);
+		
+		var json = JSON.stringify(this.logItems);
+
+//		console.log('storing json', json);
+		
+		window.localStorage.setItem('fc-actions', json);
 //		logItem.toJSON();
-	}
+	}	
 }
 
 @Injectable()
@@ -659,10 +699,13 @@ class FcStore {
 
 	private store:Store;
 	
-	constructor() {
+	constructor(private actionLog:ActionLog) {
+
+		actionLog.load();
+		
 		this.store = createStore(
 			rootReducer,
-			applyMiddleware(middleware, actionLogMiddleware)
+			applyMiddleware(middleware, actionLog.middleware)
 		);
 	}
 
@@ -781,7 +824,6 @@ export class GliderTimeComponent {
 	@Output() action = new EventEmitter();
 
 	constructor() {
-		alert(moment());
 	}
 	
 	private takeoff() {
@@ -842,7 +884,7 @@ export class GliderTimeComponent {
       [typeaheadOptionField]="'registration'"
       (typeaheadOnSelect)="typeaheadSelected($event.item)"
       (change)="enterRegistration(registration.value)"
-      [value]="planeRegistration()">
+   >
 `,
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	directives: [ TYPEAHEAD_DIRECTIVES ]
@@ -859,6 +901,7 @@ export class PlaneComponent {
 	}
 
 	private typeaheadList() {
+
 		return this.planeService.planeList();
 	}
 
@@ -900,7 +943,6 @@ interface Action {
       [typeaheadOptionField]="'name'"
       (typeaheadOnSelect)="typeaheadSelected($event.item)"
       (change)="changeName(name.value)"
-      [value]="personName()"
    > 
 `,
 	changeDetection: ChangeDetectionStrategy.OnPush,
@@ -908,12 +950,13 @@ interface Action {
 })
 export class PersonComponent {
 
-	private selected:string = '';
+	private selected = '';
 	
 	@Input() state:PersonState;
 	@Output() action:EventEmitter<any> = new EventEmitter<any>();
 
 	constructor(private personService:PersonService) {
+//		this.selected = '';
 	}
 	
 	private typeaheadList() {
@@ -932,17 +975,27 @@ export class PersonComponent {
 
 		this.action.emit(changeName(name));
 	}
-	
-	private personName():string {
 
+	private ngOnInit() {
+		this.selected = this.getPersonName();
+	}
+
+	private getPersonName():string {
+
+		console.error('CURRENT', this.state.type);
+		
 		switch (this.state.type)  {
+
 		case PersonStateType.empty:
 			return '';
+
 		case PersonStateType.unknown:
 			return this.state.unknownPersonName;
+
 		case PersonStateType.known:
 
 			let person = this.personService.findById(this.state.knownPersonId);
+
 			return person.name;
 		};
 	}
@@ -1069,8 +1122,6 @@ export class TimesheetComponent2 {
 	@Input() state;
 	@Output() action = new EventEmitter();
 	
-	private tmp:number = 0;
-
 	private entryAction(entry, action) {
 
 		this.action.emit(changeEntry(entry.id, action));
@@ -1105,10 +1156,10 @@ export class TimesheetComponent2 {
 
   private add() {
 
-		this.tmp++;
+		let id = uuid.generate();
 		//		var id = generate();
 
-		this.action.emit(addEntry(this.tmp.toString()));
+		this.action.emit(addEntry(id));
 		
     // a felhasznalo rakattintott a hozzaadasra
 		// ezt az akaratot kell eltarolnunk
@@ -1140,7 +1191,7 @@ export class TimesheetComponent2 {
       <fc-timesheet [state]="timesheetState()" (action)="timesheetAction($event)"></fc-timesheet>
     </div>
   `,
-	providers: [FcStore, PersonService, RoleService, PlaneService],
+	providers: [ActionLog, FcStore, PersonService, RoleService, PlaneService],
 	directives: [TimesheetComponent2],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -1149,11 +1200,39 @@ export class AppComponent2 {
 	static timesheetId = 'timesheet1';
 	
 	constructor(
+		private actionLog:ActionLog,
 		private store:FcStore,
 		private planeService:PlaneService) {
 
-		this.createDummyPersons();
-		this.createDummyPlanes();
+		this.load();
+	}
+
+	private load() {
+
+		//this.actionLog.clear();
+		this.actionLog.load();
+		if (this.actionLog.actions().length > 0) {
+
+			console.log('we have data, loading...');
+			
+			// we have data
+			this.actionLog.disable();
+			
+			let actions = this.actionLog.actions();
+			for (var i in actions) {
+				var action = actions[i].action;
+				this.store.dispatch(action);
+			}
+
+			this.actionLog.enable();			
+		} else {
+
+			console.log('we have no data, create new');
+			
+			// we have no data
+			this.createDummyPersons();
+			this.createDummyPlanes();			
+		}
 	}
 
 	private createDummyPlanes() {

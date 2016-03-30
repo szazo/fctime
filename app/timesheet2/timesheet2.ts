@@ -332,8 +332,9 @@ const Seat = SeatRecord;
 // }
 
 const PlaneRecord = Record({
-	type: 'known',
-	knownPlaneId: 1
+	type: PlaneStateType.empty,
+	knownPlaneId: '',
+	unknownPlaneRegistration: ''
 });
 
 const Plane = PlaneRecord;
@@ -416,7 +417,28 @@ const Root = RootRecord;
 // }
 
 function planeReducer(state: any, action: any) {
-	return state;
+
+	switch (action.type) {
+
+	case SELECT_KNOWN_PLANE:
+
+		state = state.set('knownPlaneId', action.id);
+		state = state.set('type', PlaneStateType.known);
+		state = state.set('unknownPlaneRegistration', '');
+
+		return state;
+
+	case ENTER_PLANE_REGISTRATION:
+
+		state = state.set('knownPlaneId', '');
+		state = state.set('type', PlaneStateType.unknown);
+		state = state.set('unknownPlaneRegistration', action.registration);
+
+		return state;
+
+	default:
+		return state;
+	}
 }
 
 function roleReducer(state: any, action: any) {
@@ -424,7 +446,7 @@ function roleReducer(state: any, action: any) {
 
 	case SELECT_ROLE:
 
-		return action.id;
+		return new Role({id: action.id});
 		
 	default:
 		return state;
@@ -913,6 +935,10 @@ export class PlaneComponent {
 		this.action.emit(enterPlaneRegistration(registration));
 	}
 
+	private ngOnInit() {
+		this.selected = this.planeRegistration();
+	}
+
 	private planeRegistration() {
 
 		switch (this.state.type) {
@@ -1004,7 +1030,7 @@ export class PersonComponent {
 @Component({
 	selector: 'fc-role',
 	template: `
-    <select #roleSelect (change)="roleSelected(roleSelect.value)">
+    <select #roleSelect [ngModel]="selected()" (change)="roleSelected(roleSelect.value)">
       <option *ngFor="#role of allowedRoles" value="{{role.id}}">{{role.name}}</option>
     </select>
 `,
@@ -1019,6 +1045,11 @@ export class RoleComponent {
 
 	private roleSelected(id:any) {
 		this.action.emit(selectRole(id));
+	}
+
+	private selected():string {
+
+		return this.state.id;
 	}
 }
 
@@ -1204,12 +1235,24 @@ export class AppComponent2 {
 		private store:FcStore,
 		private planeService:PlaneService) {
 
+		console.log(this.localStorageSpace());
+		
 		this.load();
 	}
 
+	private localStorageSpace(){
+    var allStrings = '';
+    for(var key in window.localStorage){
+      if(window.localStorage.hasOwnProperty(key)){
+        allStrings += window.localStorage[key];
+      }
+    }
+    return allStrings ? 3 + ((allStrings.length*16)/(8*1024)) + ' KB' : 'Empty (0 KB)';
+  }
+
 	private load() {
 
-		//this.actionLog.clear();
+//		this.actionLog.clear();
 		this.actionLog.load();
 		if (this.actionLog.actions().length > 0) {
 

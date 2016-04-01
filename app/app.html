@@ -1,0 +1,14 @@
+<nav class="navbar navbar-inverse navbar-fixed-top">
+		<div class="container-fluid">
+				<div class="navbar-header">
+						<a class="navbar-brand" href="#">
+								<img style="width:40px;" src="app/img/logo.jpg">
+						</a>
+				</div>
+				<ul class="nav navbar-nav">
+						<li><a [routerLink]="['Timesheets']">Üzemnapok</a></li>
+				</ul>
+		</div>
+</nav>
+<router-outlet></router-outlet>
+<fc-timesheet [state]="timesheetState()" (action)="timesheetAction($event)"></fc-timesheet>

@@ -2,6 +2,7 @@
 
 
 import {Component, Input, Output, Injectable, EventEmitter, ChangeDetectionStrategy} from 'angular2/core';
+import {ROUTER_DIRECTIVES, RouteConfig, RouterLink} from 'angular2/router';
 import {CORE_DIRECTIVES, FORM_DIRECTIVES} from 'angular2/common';
 import {createStore, applyMiddleware, Store, compose} from 'redux';
 import {v4} from 'node-uuid'; 
@@ -1088,20 +1089,28 @@ export class SeatComponent {
 
 @Component(
 	{
-		selector: 'fc-entry',
+		selector: '[fc-entry]',
 		template:
 		`
-      <fc-seat [state]="state.primarySeat" [allowedRoles]="primarySeatRoles()" (action)="primarySeatAction($event)"></fc-seat>
+      <td>
+       <fc-seat [state]="state.primarySeat" [allowedRoles]="primarySeatRoles()" (action)="primarySeatAction($event)"></fc-seat>
+      </td>
+      <td>
       <fc-seat [state]="state.secondarySeat" [allowedRoles]="secondarySeatRoles()" (action)="secondarySeatAction($event)"></fc-seat>
+      </td>
+      <td>
       <fc-plane [state]="state.plane" (action)="planeAction($event)"></fc-plane>
+      </td>
+      <td>
       <fc-glider-time [state]="state.gliderTime" (action)="gliderTimeAction($event)"></fc-glider-time>
+      </td>
     `,
 		directives: [SeatComponent, PlaneComponent, GliderTimeComponent],
 		changeDetection: ChangeDetectionStrategy.OnPush
 	})
 export class EntryComponent2 {
 
-	@Input() state:any;
+	@Input('fc-entry') state:any;
 	@Output() action = new EventEmitter();
 
 	constructor(private roleService:RoleService) {
@@ -1135,11 +1144,18 @@ export class EntryComponent2 {
 @Component({
   selector: 'fc-timesheet',
   template: `
-    <div>Timesheet
-      <div *ngFor="#entry of state.items" *ngForTrackBy="itemTrackBy">
-        <fc-entry [state]="entry" (action)="entryAction(entry, $event)"></fc-entry>
-      </div>
-    </div>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Első ülés</th>
+          <th>Második ülés</th>
+          <th>Vitorla</th>
+          <th>Vitorla idő</th>
+        </tr>
+      </thead>
+      <tr *ngFor="#entry of state.items" *ngForTrackBy="itemTrackBy" [fc-entry]="entry" (action)="entryAction(entry, $event)">
+      </tr>
+    </table>
     <div>
       <button (click)="add()">Add</button>
     </div>
@@ -1216,16 +1232,33 @@ export class TimesheetComponent2 {
 }
 
 @Component({
-	selector: 'fc-app',
 	template: `
-    <div>
-      <fc-timesheet [state]="timesheetState()" (action)="timesheetAction($event)"></fc-timesheet>
-    </div>
-  `,
+   <div>ez a lista</div>
+`
+})
+export class TimesheetsComponent {
+}
+
+@Component({
+	template: `
+   <div>ez egy a lista</div>
+`
+})
+export class TimesheetComponent3 {
+
+}
+
+@Component({
+	selector: 'fc-app',
+	templateUrl: 'app/app.html',
 	providers: [ActionLog, FcStore, PersonService, RoleService, PlaneService],
-	directives: [TimesheetComponent2],
+	directives: [TimesheetComponent2, ROUTER_DIRECTIVES],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
+@RouteConfig([
+	{path: '/alma', name: "Timesheets", component: TimesheetsComponent},
+	{path: '/day/:id', name: "Timesheet", component: TimesheetComponent3}
+])
 export class AppComponent2 {
 
 	static timesheetId = 'timesheet1';

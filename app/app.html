@@ -6,9 +6,9 @@
 						</a>
 				</div>
 				<ul class="nav navbar-nav">
-						<li><a [routerLink]="['Timesheets']">Üzemnapok</a></li>
+						<li><a [routerLink]="['Timekeeper']" (click)="timesheetsSelected()">Üzemnapok</a></li>
 				</ul>
 		</div>
 </nav>
 <router-outlet></router-outlet>
-<fc-timesheet [state]="timesheetState()" (action)="timesheetAction($event)"></fc-timesheet>
+<!-- <fc-timesheet [state]="timesheetState()" (action)="timesheetAction($event)"></fc-timesheet> -->

@@ -5,7 +5,15 @@
 				"typings/node-uuid/node-uuid-cjs.d.ts",
 				"node_modules/immutable/dist/immutable.d.ts",
 				"node_modules/ng2-bootstrap/ng2-bootstrap.d.ts",
-				"app/timesheet2/timesheet2.ts",
+				"app/common/uuid.ts",
+				"app/common/fc-store.ts",
+				"app/person/person.model.ts",
+				"app/person/person-service.ts",
+				"app/plane/plane.model.ts",
+				"app/plane/plane-service.ts",
+				"app/timekeeper/timekeeper/timesheet-list.component.ts",
+				"app/timekeeper/timekeeper/timekeeper.component.ts",
+				"app/app.component.ts",
 				"app/boot.ts"
     ],
     "compilerOptions": {

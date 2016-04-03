@@ -2,7 +2,7 @@
 
 
 import {Component, Input, Output, Injectable, EventEmitter, ChangeDetectionStrategy} from 'angular2/core';
-import {ROUTER_DIRECTIVES, RouteConfig, RouterLink} from 'angular2/router';
+import {ROUTER_DIRECTIVES, RouteConfig, RouterLink, Router} from 'angular2/router';
 import {CORE_DIRECTIVES, FORM_DIRECTIVES} from 'angular2/common';
 import {createStore, applyMiddleware, Store, compose} from 'redux';
 import {v4} from 'node-uuid'; 
@@ -10,6 +10,7 @@ import {List, Record, Map} from 'immutable';
 // import {devTools} from 'redux-devtools';
 import { TYPEAHEAD_DIRECTIVES } from 'ng2-bootstrap';
 import moment from 'moment';
+import { TimekeeperComponent } from '../timekeeper/timekeeper.component';
 
 // createStore = compose(
 // 	devTools(),
@@ -22,71 +23,24 @@ class uuid {
 	}
 }
 
-enum PersonStateType {
-	empty,
-	unknown,
-	known
-}
 
-interface PersonState {
-	type: PersonStateType,
-	knownPersonId: string,
-	unknownPersonName: string
-}
-
-enum PlaneStateType {
-	empty,
-	unknown,
-	known
-}
-
-interface PlaneState {
-	type: PlaneStateType;
-	knownPlaneId: string,
-	unknownPlaneRegistration: string
-}
 
 // person management
-const CREATE_PERSON = 'create_person';
 
 // plane management
 const CREATE_PLANE = 'create_plane';
 
-// inside time
-const CHANGE_TIMESHEET = 'change_timesheet';
-
-// inside timesheet
-const ADD_ENTRY = 'add_entry';
-const CHANGE_ENTRY = 'change_entry';
-
 // inside entry
-const CHANGE_PRIMARY_SEAT = 'change_primary_seat';
-const CHANGE_SECONDARY_SEAT = 'change_secondary_seat';
-const CHANGE_PLANE = 'change_plane';
-const CHANGE_GLIDER_TIME = 'change_glider_time';
 
 // inside seat
-const CHANGE_PERSON = 'change_person';
-const CHANGE_ROLE = 'change_role';
 
 // inside plane
-const SELECT_KNOWN_PLANE = 'select_known_plane';
-const ENTER_PLANE_REGISTRATION = 'enter_plane_registration';
 
 // inside person
-const CHANGE_NAME = 'change_name';
-const CLEAR_PERSON = 'clear_person';
-const SELECT_KNOWN_PERSON = 'select_known_person';
 
 // inside role
-const SELECT_ROLE = "select_role";
 
 // inside glider time
-const TAKEOFF = 'takeoff';
-const LAND = 'land';
-const CHANGE_TAKEOFF_TIME = 'change_takeoff_time';
-const CHANGE_LAND_TIME = 'change_land_time';
-const CHANGE_AIR_TIME = 'change_air_time';
 
 function addEntry(id:string) {
 	return {
@@ -107,30 +61,8 @@ function createPerson(id:string, name:string, club:string, level:string) {
 }
 
 // plane management
-function createPlane(id:string, registration:string, type: string) {
-
-	return {
-		type: CREATE_PLANE,
-		id,
-		registration,
-		planeType: type
-	}
-}
 
 // plane actions
-function selectKnownPlane(id:any) {
-	return {
-		type: SELECT_KNOWN_PLANE,
-		id
-	}
-}
-
-function enterPlaneRegistration(registration:string) {
-	return {
-		type: ENTER_PLANE_REGISTRATION,
-		registration
-	}
-}
 
 // role actions
 function selectRole(id:any) {
@@ -141,84 +73,10 @@ function selectRole(id:any) {
 }
 
 // glider time actions
-function takeoff(time:string) {
-	return {
-		type: TAKEOFF,
-		time
-	}
-}
-
-function land(time:string) {
-	return {
-		type: LAND,
-		time
-	}
-}
-
-function changeTakeoffTime(time:string) {
-	return {
-		type: CHANGE_TAKEOFF_TIME,
-		time
-	}
-}
-
-function changeLandTime(time:string) {
-	return {
-		type: CHANGE_LAND_TIME,
-		time
-	}
-}
-
-function changeAirTime(time:string) {
-	return {
-		type: CHANGE_AIR_TIME,
-		time
-	}
-}
 
 // person actions
 
-function changeName(name:string) {
-	return {
-		type: CHANGE_NAME,
-		name
-	}
-}
 
-function clearPerson() {
-	return {
-		type: CLEAR_PERSON
-	}
-}
-
-function selectKnownPerson(id:any) {
-	return {
-		type: SELECT_KNOWN_PERSON,
-		id
-	}
-}
-
-function changeTimesheet(id:any, action:any) {
-	return {
-		type: CHANGE_TIMESHEET,
-		id: id,
-		action
-	};
-}
-
-function changePerson(action: any) {
-	return {
-		type: CHANGE_PERSON,
-		action
-	}
-}
-
-function changeRole(action: any) {
-	return {
-		type: CHANGE_ROLE,
-		action
-	}
-}
 
 function changePrimarySeat(action: any) {
 	return {
@@ -269,17 +127,6 @@ function entry(state:any, action: any) {
 	}
 }
 
-const PersonRecord = Record({
-	type: PersonStateType.empty,
-	knownPersonId: '',
-	unknownPersonName: ''
-});
-
-class Person extends PersonRecord {
-	constructor(props) {
-		super(props);
-	}
-}
 
 const PersonDataRecord = Record({
 	id: '',
@@ -306,11 +153,6 @@ class PersonData extends PersonDataRecord {
 
 }*/
 
-const RoleRecord = Record({
-	id: 0
-});
-
-const Role = RoleRecord;
 
 
 // class Role extends RoleRecord {
@@ -319,12 +161,6 @@ const Role = RoleRecord;
 // 	}
 // }
 
-const SeatRecord = Record({
-	person: new Person({}),
-	role: new Role({})
-});
-
-const Seat = SeatRecord;
 
 // class Seat extends SeatRecord {
 // 	constructor(props) {
@@ -346,27 +182,6 @@ const Plane = PlaneRecord;
 // 	}
 // }
 
-enum GliderTimePhase {
-	none,
-	flying,
-	landed
-}
-
-interface GliderTimeState {
-	phase: GliderTimePhase,
-	takeoffTime: string,
-	landTime: string,
-	flyTime: string
-}
-
-const GliderTimeRecord = Record({
-	phase: GliderTimePhase.none,
-	takeoffTime: '',
-	landTime: '',
-	flyTime: ''
-});
-
-const GliderTime = GliderTimeRecord;
 
 // class GliderTime extends GliderTimeRecord {
 // 	constructor (props) {
@@ -374,15 +189,6 @@ const GliderTime = GliderTimeRecord;
 // 	}
 // }
 
-const EntryRecord = Record({
-	id: '',
-	primarySeat: new Seat({}),
-	secondarySeat: new Seat({}),
-	plane: new Plane({}),
-	gliderTime: new GliderTime({})
-});
-
-const Entry = EntryRecord;
 
 // class Entry extends EntryRecord {
 // 	constructor(props) {
@@ -392,6 +198,8 @@ const Entry = EntryRecord;
 
 const TimesheetRecord = Record({
 	id: '',
+	date: '',
+	place: '',
 	items: List([])
 });
 
@@ -417,127 +225,10 @@ const Root = RootRecord;
 // 	}
 // }
 
-function planeReducer(state: any, action: any) {
 
-	switch (action.type) {
 
-	case SELECT_KNOWN_PLANE:
 
-		state = state.set('knownPlaneId', action.id);
-		state = state.set('type', PlaneStateType.known);
-		state = state.set('unknownPlaneRegistration', '');
 
-		return state;
-
-	case ENTER_PLANE_REGISTRATION:
-
-		state = state.set('knownPlaneId', '');
-		state = state.set('type', PlaneStateType.unknown);
-		state = state.set('unknownPlaneRegistration', action.registration);
-
-		return state;
-
-	default:
-		return state;
-	}
-}
-
-function roleReducer(state: any, action: any) {
-	switch (action.type) {
-
-	case SELECT_ROLE:
-
-		return new Role({id: action.id});
-		
-	default:
-		return state;
-	}
-}
-
-function gliderTimeReducer(state: any, action: any) {
-
-	switch (action.type) {
-
-	case TAKEOFF:
-
-		state = state.set('phase', GliderTimePhase.flying);
-		state = state.set('takeoffTime', action.time);
-
-		return state;
-
-	case LAND:
-
-		state = state.set('phase', GliderTimePhase.landed);
-		state = state.set('landTime', action.time);
-
-		return state;
-
-	default:
-
-		return state;
-		
-	}
-}
-
-const personReducer = (state: any, action: any) => {
-
-	switch (action.type) {
-		
-	case CHANGE_NAME:
-
-		state = state.set('type', PersonStateType.unknown);
-		state = state.set('unknownPersonName', action.name);
-		state = state.set('knownPersonId', '');
-
-		return state;
-	case SELECT_KNOWN_PERSON:
-
-		state = state.set('type', PersonStateType.known);
-		state = state.set('unknownPersonName', '');
-		state = state.set('knownPersonId', action.id);
-
-		return state;
-		
-	default:
-		return state;
-	}	
-}
-
-function seatReducer(state: any, action: any) {
-
-	switch (action.type) {
-
-	case CHANGE_PERSON:
-		return state.update('person', personState => personReducer(personState, action.action));
-
-	case CHANGE_ROLE:
-		return state.update('role', roleState => roleReducer(roleState, action.action));
-
-	default:
-		return state;
-	}
-}
-
-function itemReducer(state:any, action: any) {
-
-	switch (action.type) {
-
-	case CHANGE_PRIMARY_SEAT:
-		return state.set('primarySeat', seatReducer(state.primarySeat, action.action));
-
-	case CHANGE_SECONDARY_SEAT:
-		return state.set('secondarySeat', seatReducer(state.secondarySeat, action.action));	
-
-	case CHANGE_PLANE:
-		return state.set('plane', planeReducer(state.plane, action.action));
-
-	case CHANGE_GLIDER_TIME:
-		return state.set('gliderTime', gliderTimeReducer(state.gliderTime, action.action));
-		
-	default:
-		return state;
-	}
-}
 
 function timesheetReducer(state: any, action:any) {
 
@@ -577,22 +268,6 @@ function timesheetReducer(state: any, action:any) {
 	}
 }
 
-function personManagementReducer(state: any, action: any) {
-
-	let personData = new PersonData({
-		id: action.id,
-		name: action.name,
-		club: action.club,
-		level: action.level
-	});
-
-	let persons = state.persons.push(personData);
-	let newState = state.set('persons', persons);
-
-	console.debug('NEWSTATE', newState);
-
-	return newState;
-}
 
 function planeManagementReducer(state: any, action: any) {
 
@@ -605,141 +280,9 @@ function planeManagementReducer(state: any, action: any) {
 	return state.set('planes', state.planes.push(planeData));
 }
 
-const initialState = new Root({
-	timesheets: List([new Timesheet({id: 'timesheet1'})]),
-	persons: List([])
-});
 
-function rootReducer(state: any, action: any) {
 
-	if (state == undefined) {
 
-		return initialState;
-	}
-
-	switch(action.type) {
-	case CHANGE_TIMESHEET:
-
-		let sheets = state.timesheets;
-		sheets = sheets.update(sheets.findIndex(x=> x.id == action.id), timesheet => timesheetReducer(timesheet, action.action));
-
-		console.debug('NEW ROOT STATE', sheets.toJSON());
-
-		return state.set('timesheets', sheets);
-
-	case CREATE_PERSON:
-
-		return personManagementReducer(state, action);
-
-	case CREATE_PLANE:
-
-		return planeManagementReducer(state, action);
-		
-	default:
-		return state;
-	}
-}
-
-const middleware = store => next => action => {
-
-	console.debug('action:', action);
-
-	next(action);
-}
-
-class ActionLogItem {
-	id: string;
-	action:any;
-}
-
-@Injectable()
-class ActionLog {
-
-	private logItems:ActionLogItem[] = [];
-	private isEnabled:boolean = true;
-
-	public clear() {
-    window.localStorage.removeItem('fc-actions');
-		this.logItems = [];
-	}
-	
-	public load() {
-		let read = window.localStorage.getItem('fc-actions');
-
-		if (read) {
-			this.logItems = JSON.parse(read);
-		} else {
-			this.logItems = [];
-		}
-
-		//console.log('loaded items', this.logItems);
-	}
-
-	public actions():ActionLogItem[] {
-		return this.logItems;
-	}
-	
-	public middleware = store => next => action => {
-		next(action);
-
-		if (this.isEnabled) {
-			this.add(action, null);
-		}
-	}
-
-	public enable() {
-		this.isEnabled = true;
-	}
-
-	public disable() {
-		this.isEnabled = false;
-	}
-
-	private add(action:any, nextState:any)
-	{
-		var logItem = new ActionLogItem();
-		logItem.id = v4();
-		logItem.action = action;
-
-		this.store(logItem);
-	}
-
-	private store(logItem:ActionLogItem) {
-
-		this.logItems.push(logItem);
-		
-		var json = JSON.stringify(this.logItems);
-
-//		console.log('storing json', json);
-		
-		window.localStorage.setItem('fc-actions', json);
-//		logItem.toJSON();
-	}	
-}
-
-@Injectable()
-class FcStore {
-
-	private store:Store;
-	
-	constructor(private actionLog:ActionLog) {
-
-		actionLog.load();
-		
-		this.store = createStore(
-			rootReducer,
-			applyMiddleware(middleware, actionLog.middleware)
-		);
-	}
-
-	public dispatch(action: any): any {
-		return this.store.dispatch(action);
-	}
-
-	public getState(): any {
-		return this.store.getState();
-	}	
-}
 
 enum RoleType {
 	none,
@@ -1233,10 +776,60 @@ export class TimesheetComponent2 {
 
 @Component({
 	template: `
+   <button class="btn btn-primary" (click)="createTimesheet()">Új üzemnap</button>
+   <table class="table table-striped table-hover">
+     <tr>
+       <th>Id</th>
+       <th>Dátum</th>
+       <th>Helyszín</th>
+     </tr>
+     <tr *ngFor="#item of timesheets()" *ngForTrackBy="itemTrackBy">
+       <td><a [routerLink]="['Timesheet', {id: item.id}]">{{ item.id }}</a></td>
+       <td></td>
+       <td></td>
+     </tr>
+<!--     <tr *ngFor="#item of state" *ngForTrackBy="itemTrackBy" [fc-timesheet2]="item" (action)="timesheetAction(item, $event)">-->
+   </table>
    <div>ez a lista</div>
-`
+`,
+	directives: [ROUTER_DIRECTIVES]
 })
 export class TimesheetsComponent {
+
+	constructor(private store:FcStore) {
+	}
+
+	private itemTrackBy(index: number, obj: any) : any {
+		return obj.id;
+	}
+
+	private createTimesheet() {
+		let id = uuid.generate();
+		//		this.action.emit(createTimesheet(id));
+		this.store.dispatch(createTimesheet(id));		
+	}
+
+	private timesheets() {
+		let state = this.store.getState();
+
+		console.log(state.timesheets);
+		return state.timesheets;
+	}
+
+	/*
+	private timesheetState() {
+
+		let state = this.store.getState();
+
+		let timesheet = state.timesheets.find(x => x.id == AppComponent2.timesheetId);
+
+		return timesheet;
+	}
+
+	private timesheetAction(action) {
+
+		this.store.dispatch(changeTimesheet(AppComponent2.timesheetId, action));
+	}	*/
 }
 
 @Component({
@@ -1256,8 +849,14 @@ export class TimesheetComponent3 {
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 @RouteConfig([
-	{path: '/alma', name: "Timesheets", component: TimesheetsComponent},
-	{path: '/day/:id', name: "Timesheet", component: TimesheetComponent3}
+	{
+		path: '/timekeeper/...',
+		name: 'Timekeeper',
+		component: TimekeeperComponent,
+		useAsDefault: true
+	},
+	{path: '/timesheets', name: "Timesheets", component: TimesheetsComponent},
+	{path: '/timesheets/:id', name: "Timesheet", component: TimesheetComponent3}
 ])
 export class AppComponent2 {
 
@@ -1266,11 +865,17 @@ export class AppComponent2 {
 	constructor(
 		private actionLog:ActionLog,
 		private store:FcStore,
-		private planeService:PlaneService) {
+		private planeService:PlaneService,
+	  private router:Router) {
 
 		console.log(this.localStorageSpace());
 		
 		this.load();
+	}
+
+	private timesheetsSelected() {
+		this.router.navigate( ['Timesheets', {   } ])
+		alert('timesheets');
 	}
 
 	private localStorageSpace(){

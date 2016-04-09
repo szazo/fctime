@@ -1,7 +1,7 @@
 import {List,Record} from 'immutable';
 import {Entry, entryReducer} from './entry/entry.model';
 
-const ADD_ENTRY = 'add_entry';
+const CREATE_ENTRY = 'add_entry';
 const CHANGE_ENTRY = 'change_entry';
 
 const TimesheetRecord = Record({
@@ -13,10 +13,10 @@ const TimesheetRecord = Record({
 
 export const Timesheet = TimesheetRecord;
 
-function timesheetItemsReducer(state: any, action:any) {
+export function timesheetReducer(state: any, action:any) {
 
 	switch (action.type) {
-	case ADD_ENTRY:
+	case CREATE_ENTRY:
 		{
 		console.log('ADD_ENTRY', state.toJSON(), action);
 
@@ -50,3 +50,11 @@ function timesheetItemsReducer(state: any, action:any) {
 		return state;	
 	}
 }
+
+export function createEntry(id:string) {
+	return {
+		type: CREATE_ENTRY,
+		id
+	}
+}
+

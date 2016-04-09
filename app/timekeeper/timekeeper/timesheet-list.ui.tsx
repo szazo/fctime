@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { IDispatch } from 'redux';
 
@@ -24,28 +25,26 @@ class TimesheetListView extends React.Component<TimesheetListProps, {}> {
 						<div>
 								<button className="btn btn-primary" onClick={this.props.onCreateTimesheetClick}>Új üzemnap</button>
 								<table className="table table-striped table-hover">
-										<tr>
-												<th>Id</th>
-												<th>Dátum</th>
-												<th>Helyszín</th>
-										</tr>
-										{
-												this.props.items.map((item:TimesheetListItem) => (
-														<tr>
-																<td>{item.id}</td>
-																<td>{item.date}</td>
-																<td>{item.place}</td>
-														</tr>
-												))
+										<tbody>
+												<tr>
+														<th>Id</th>
+														<th>Dátum</th>
+														<th>Helyszín</th>
+												</tr>
+												{
+														this.props.items.map((item:TimesheetListItem) => (
+																<tr key={item.id}>
+																		<td><Link to={'timekeeper/timesheet/' + item.id}>{item.id}</Link></td>
+																		<td>{item.date}</td>
+																		<td>{item.place}</td>
+																</tr>
+														))
 
-										}
+												}
+										</tbody>
 								</table>
 						</div>
 				);
-		}
-
-		private createTimesheet() {
-				alert('create');
 		}
 }
 

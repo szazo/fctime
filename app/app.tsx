@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { Router, Route, Link, hashHistory } from 'react-router';
+import { Router, Route, IndexRoute, Link, hashHistory } from 'react-router';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 
@@ -8,6 +8,8 @@ import { DevTools } from './devtools';
 
 import { rootReducer } from './app.model';
 import { Timekeeper } from './timekeeper/timekeeper/timekeeper.ui';
+import { TimesheetList } from './timekeeper/timekeeper/timesheet-list.ui';
+import { EntryList } from './timekeeper/timesheet/entry-list.ui';
 
 class App extends React.Component<{},{}> {
 
@@ -24,7 +26,7 @@ class App extends React.Component<{},{}> {
 														</a>
 												</div>
 												<ul className="nav navbar-nav">
-														<li><Link to={`/timekeeper`} activeClass="active">Üzemnapok</Link></li>
+														<li><Link to={`/timekeeper`} activeClass="active">Időmérő</Link></li>
 												</ul>
 										</div>
 								</nav>
@@ -46,6 +48,8 @@ ReactDOM.render(
 				<Router history={hashHistory}>
 						<Route path="/" component={App}>
 								<Route path="timekeeper" component={Timekeeper}>
+										<IndexRoute component={TimesheetList} />
+										<Route path="timesheet/:id" component={EntryList} />
 								</Route>
 						</Route>
 				</Router>

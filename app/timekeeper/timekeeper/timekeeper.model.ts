@@ -1,7 +1,7 @@
 import {List,Record} from 'immutable';
 
 import {FcStore} from '../../common/fc-store';
-import {Timesheet} from '../timesheet/timesheet.model';
+import {Timesheet, timesheetReducer} from '../timesheet/timesheet.model';
 
 const CHANGE_TIMESHEET = 'change_timesheet';
 const CREATE_TIMESHEET = 'create_timesheet';
@@ -12,7 +12,7 @@ const TimekeeperRecord = Record({
 
 export const TimekeeperState = TimekeeperRecord; 
 
-function changeTimesheet(id:any, action:any) {
+export function changeTimesheet(id:any, action:any) {
 	return {
 		type: CHANGE_TIMESHEET,
 		id: id,
@@ -33,13 +33,10 @@ export function timekeeperReducer(state:any, action:any) {
 
 	case CHANGE_TIMESHEET:
 
-		throw new Error('Not impl');
-		// let sheets = state.timesheets;
-		// sheets = sheets.update(sheets.findIndex(x=> x.id == action.id), timesheet => timesheetReducer(timesheet, action.action));
+		let sheets = state.timesheets;		
+		sheets = sheets.update(sheets.findIndex(x=> x.id == action.id), timesheet => timesheetReducer(timesheet, action.action));
 
-		// console.debug('NEW ROOT STATE', sheets.toJSON());
-
-		// return state.set('timesheets', sheets);
+		return state.set('timesheets', sheets);
 
 	case CREATE_TIMESHEET:
 

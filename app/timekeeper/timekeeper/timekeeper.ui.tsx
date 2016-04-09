@@ -8,7 +8,7 @@ export class Timekeeper extends React.Component<{}, {}> {
 				return (
 						<div>
 								<h2>Időmérő</h2>
-								<TimesheetList />
+								{ this.props.children }
 						</div>
 				);
 		}

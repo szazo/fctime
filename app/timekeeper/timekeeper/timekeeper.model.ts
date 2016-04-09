@@ -1,5 +1,6 @@
 import {List,Record} from 'immutable';
 
+import {FcStore} from '../../common/fc-store';
 import {Timesheet} from '../timesheet/timesheet.model';
 
 const CHANGE_TIMESHEET = 'change_timesheet';
@@ -9,7 +10,7 @@ const TimekeeperRecord = Record({
 	timesheets: List([])
 });
 
-const Timekeeper = TimekeeperRecord; 
+export const TimekeeperState = TimekeeperRecord; 
 
 function changeTimesheet(id:any, action:any) {
 	return {
@@ -26,7 +27,7 @@ export function createTimesheet(id: any) {
 	}
 }
 
-function timekeeperReducer(state:any, action:any) {
+export function timekeeperReducer(state:any, action:any) {
 
 	switch (action.type) {
 

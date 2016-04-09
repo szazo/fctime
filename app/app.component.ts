@@ -1,7 +1,7 @@
-import {Component, ChangeDetectionStrategy,OnInit} from 'angular2/core';
+import {Component, ChangeDetectionStrategy,OnInit, provide} from 'angular2/core';
 import {ROUTER_DIRECTIVES, RouteConfig} from 'angular2/router';
 
-import {FcStore} from './common/fc-store';
+import {FcStore, State} from './common/fc-store';
 import {PersonService} from './person/person-service';
 import {PlaneService} from './plane/plane-service';
 import {TimekeeperComponent} from './timekeeper/timekeeper/timekeeper.component';
@@ -10,7 +10,7 @@ import {rootReducer} from './app.model';
 @Component({
 	selector: 'fc-app',
 	templateUrl: 'app/app.html',
-	providers: [FcStore, PersonService, PlaneService],
+	providers: [FcStore, provide(State, {useExisting: FcStore}), PersonService, PlaneService],
 	directives: [ROUTER_DIRECTIVES],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })

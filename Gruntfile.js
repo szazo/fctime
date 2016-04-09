@@ -4,18 +4,18 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
     watch: {
       options: {
-        livereload: true
+					livereload: true
       },
       css: {
-        files: ['app/**/*.scss'],
-        tasks: ['sass']
+					files: ['app/**/*.scss'],
+					tasks: ['sass']
       },
       typescript: {
-        files: ['app/**/*.ts'],
-        tasks: ['ts']
+					files: ['app/**/*.ts', 'app/**/*.tsx'],
+					tasks: ['ts']
       },
       html: {
-        files: 'app/**/*.html'
+					files: 'app/**/*.html'
       }
     },
     ts: {

@@ -1,7 +1,7 @@
-import {Component} from 'angular2/core';
+import {Component, EventEmitter, Input, Output} from 'angular2/core';
 import {ROUTER_DIRECTIVES} from 'angular2/router';
 import {UUID} from '../../common/uuid';
-import {FcStore} from '../../common/fc-store';
+import {State} from '../../common/fc-store';
 import {createTimesheet} from './timekeeper.model';
 
 @Component({
@@ -10,20 +10,20 @@ import {createTimesheet} from './timekeeper.model';
 })
 export class TimesheetListComponent {
 
-	constructor(private store:FcStore) {
-	}
-
+	@Input() state:any;
+	@Output() action = new EventEmitter();
+	
 	private itemTrackBy(index: number, obj: any) : any {
 		return obj.id;
 	}
 
 	private createTimesheet() {
 		let id = UUID.generate();
-		this.store.dispatch(createTimesheet(id));		
+		this.action.emit(createTimesheet(id));
 	}
 
 	private timesheets() {
-		let state = this.store.getState();
+		let state = this.state;
 
 		console.log(state.timesheets);
 		return state.timesheets;

@@ -1,30 +1,22 @@
 {
     "files": [
 				"typings/moment/moment-node.d.ts",
-				"typings/redux/redux.d.ts",
 				"typings/node-uuid/node-uuid-cjs.d.ts",
+				"typings/main.d.ts",
 				"node_modules/immutable/dist/immutable.d.ts",
-				"node_modules/ng2-bootstrap/ng2-bootstrap.d.ts",
+//				"node_modules/ng2-bootstrap/ng2-bootstrap.d.ts",
 				"app/common/uuid.ts",
-				"app/common/fc-store.ts",
-				"app/person/person.model.ts",
-				"app/person/person-service.ts",
-				"app/plane/plane.model.ts",
-				"app/plane/plane-service.ts",
-				"app/timekeeper/timekeeper/timesheet-list.component.ts",
-				"app/timekeeper/timekeeper/timekeeper.component.ts",
-				"app/app.component.ts",
-				"app/boot.ts"
+				"app/app.tsx"
     ],
     "compilerOptions": {
-        "target": "ES6",
-        "module": "system",
+        "target": "es5",
+        "module": "commonjs",
         "moduleResolution": "node",
         "noImplicitAny": false,
-        "experimentalDecorators": true,
-
-        "sourceMap": true,
-        "emitDecoratorMetadata": true
+        // "experimentalDecorators": true,
+				"jsx": "react",
+        "sourceMap": true
+        // "emitDecoratorMetadata": true
 
     },
     "exclude": [

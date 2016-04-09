@@ -12,11 +12,11 @@ export class PlaneService {
 	}
 	
 	public planeList() {
-		return this.store.getState().planes.toArray();
+		return this.store.state.planes.toArray();
 	}
 
 	public findById(id:any):any {
-		var found = this.store.getState().planes.toArray().find(x => x.id == id);
+		var found = this.store.state.planes.toArray().find(x => x.id == id);
 
 		return found;
 	}	

@@ -10,11 +10,11 @@ export class PersonService {
 	}
 
 	public personList() {
-		return this.store.getState().persons.toArray();
+		return this.store.state.persons.toArray();
 	}
 
 	public findById(id:any):any {
-		var found = this.store.getState().persons.toArray().find(x => x.id == id);
+		var found = this.store.state.persons.toArray().find(x => x.id == id);
 
 		return found;
 	}

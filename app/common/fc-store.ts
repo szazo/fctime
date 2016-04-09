@@ -1,13 +1,14 @@
-import {createStore, applyMiddleware, Store, compose, Reducer} from 'redux';
-import {Injectable} from 'angular2/core';
+import {createStore, applyMiddleware, IMiddlewareStore, IStore, IAction, IDispatch, compose } from 'redux';
+// import {Injectable, provide, SkipSelf, Host} from 'angular2/core'; // 
 
 import {UUID} from './uuid';
 
-const middleware = store => next => action => {
+const middleware = (store:IMiddlewareStore<State>) => (next:IDispatch) => (action:IAction) => {
 
-	console.debug('action:', action);
+		return next(action);
 
-	next(action);
+//	console.debug('action:', action);
+
 }
 
 class ActionLogItem {
@@ -41,12 +42,14 @@ class ActionLog {
 		return this.logItems;
 	}
 	
-	public middleware = store => next => action => {
-		next(action);
+	public middleware = (store:IMiddlewareStore<State>) => (next:IDispatch) => (action:IAction) => {
+		let nextDispatch = next(action);
 
 		if (this.isEnabled) {
 			this.add(action, null);
 		}
+
+		return nextDispatch;
 	}
 
 	public enable() {
@@ -79,25 +82,36 @@ class ActionLog {
 	}	
 }
 
-@Injectable()
-export class FcStore {
+export class State {
+	public get state():any {
+		throw new Error();
+	}
+	
+	public dispatch(action:any) {
+		throw new Error();
+	}
+}
 
-	private store:Store;
+export class FcStore extends State {
+
+	private _store:IStore<any>;
 	private actionLog: ActionLog;
 	
 	constructor() {
+		super();
+		
 		this.actionLog = new ActionLog();
 	}
 
-	public load(rootReducer:Reducer) {
+	public load(rootReducer:any) {
 
 		// create the store
-		this.store = createStore(
+		this._store = createStore(
 			rootReducer,
 			applyMiddleware(middleware, this.actionLog.middleware)
 		);
 		
-//		this.actionLog.clear();
+		this.actionLog.clear();
 		this.actionLog.load();
 		if (this.actionLog.actions().length > 0) {
 
@@ -109,7 +123,7 @@ export class FcStore {
 			let actions = this.actionLog.actions();
 			for (var i in actions) {
 				var action = actions[i].action;
-				this.store.dispatch(action);
+				this._store.dispatch(action);
 			}
 
 			this.actionLog.enable();			
@@ -117,10 +131,14 @@ export class FcStore {
 	}
 
 	public dispatch(action: any): any {
-		return this.store.dispatch(action);
+		return this._store.dispatch(action);
 	}
 
-	public getState(): any {
-		return this.store.getState();
-	}	
+	public get state(): any {
+		return this._store.getState();
+	}
+
+	public get store(): IStore<any> {
+		return this._store;
+	}
 }

@@ -13,8 +13,8 @@ export function changeTimekeeper(action:any) {
 	}
 }
 
-const RootRecord = Record({
-	timekeeper: List([]),
+export const RootRecord = Record({
+	timekeeper: new TimekeeperState(),
 	persons: List([]),
 	planes: List([])
 });
@@ -28,6 +28,8 @@ const initialState = new Root({
 
 export function rootReducer(state: any, action: any) {
 
+	console.log('root', action);
+	
 	if (state == undefined) {
 
 		return initialState;

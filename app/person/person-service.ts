@@ -1,20 +1,17 @@
-import {Injectable} from 'angular2/core';
+import { IStore } from 'redux';
 
-import {FcStore} from '../common/fc-store';
-
-@Injectable()
 export class PersonService {
 
-	constructor(private store: FcStore)
+	constructor(private store: IStore<any>)
 	{
 	}
 
 	public personList() {
-		return this.store.state.persons.toArray();
+		return this.store.getState().persons.toArray();
 	}
 
 	public findById(id:any):any {
-		var found = this.store.state.persons.toArray().find(x => x.id == id);
+		var found = this.store.getState().persons.toArray().find(x => x.id == id);
 
 		return found;
 	}

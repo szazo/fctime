@@ -44,6 +44,10 @@ export function timekeeperReducer(state:any, action:any) {
 		return state.set('timesheets', newTimesheets);
 
 
+	default:
+
+		return state; 
 	}
+
 	
 }

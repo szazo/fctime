@@ -1,6 +1,9 @@
 import {Record} from 'immutable';
+import * as moment from 'moment';
 
-enum GliderTimePhase {
+import { Time } from '../../common/time';
+
+export enum GliderTimePhase {
 	none,
 	flying,
 	landed
@@ -8,16 +11,16 @@ enum GliderTimePhase {
 
 interface GliderTimeState {
 	phase: GliderTimePhase,
-	takeoffTime: string,
-	landTime: string,
-	flyTime: string
+	takeoffTime: Time,
+	landTime: Time,
+	airTime: Time
 }
 
 const GliderTimeRecord = Record({
 	phase: GliderTimePhase.none,
-	takeoffTime: '',
-	landTime: '',
-	flyTime: ''
+	takeoffTime: Time.empty(),
+	landTime: Time.empty(),
+	airTime: Time.empty()
 });
 
 export const GliderTime = GliderTimeRecord;
@@ -28,35 +31,51 @@ const CHANGE_TAKEOFF_TIME = 'change_takeoff_time';
 const CHANGE_LAND_TIME = 'change_land_time';
 const CHANGE_AIR_TIME = 'change_air_time';
 
-function takeoff(time:string) {
+function createTime():{time:Time, realTime:string} {
+	let m = moment();
+	let time = Time.fromMoment(m);
+	let realTime = m.format();
+
+	return {time: time, realTime: realTime};
+}
+
+export function takeoff() {
+
+	let time = createTime();
+	
 	return {
 		type: TAKEOFF,
-		time
+		time: time.time,
+		realTime: time.realTime
 	}
 }
 
-function land(time:string) {
+export function land() {
+
+	let time = createTime();
+	
 	return {
 		type: LAND,
-		time
+		time: time.time,
+		realTime: time.realTime
 	}
 }
 
-function changeTakeoffTime(time:string) {
+export function changeTakeoffTime(time:Time) {
 	return {
 		type: CHANGE_TAKEOFF_TIME,
 		time
 	}
 }
 
-function changeLandTime(time:string) {
+export function changeLandTime(time:Time) {
 	return {
 		type: CHANGE_LAND_TIME,
 		time
 	}
 }
 
-function changeAirTime(time:string) {
+export function changeAirTime(time:Time) {
 	return {
 		type: CHANGE_AIR_TIME,
 		time

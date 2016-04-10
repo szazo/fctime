@@ -1,37 +1,62 @@
-/// <reference path="react-autocomplete.d.ts" />
-
 import * as React from 'react';
-import Typeahead  from 'react-bootstrap-typeahead'
-//import { Typeahead } from 'react-typeahead';
+import { Typeahead, TypeaheadSelection, TypeaheadSelectionType } from '../../../common/typeahead';
+import { FluxProps } from '../../../common/flux-props';
+import { clearPerson, selectKnownPerson, enterName, PersonStateType } from './person.model';
 
-interface PersonProps {
-		state: any;
-		
-}
-
-export class Person extends React.Component<{}, {}> {
+export class Person extends React.Component<FluxProps, {}> {
 
 		static contextTypes = {
 				personService: React.PropTypes.object
 		};
-
-		
-		private selected:any;
 		
 		render() {
 
-				console.log(this.personList());
-				
 				return (
 						<div>
-								<Typeahead
-										options={this.personList()}										
-										labelKey="name"
-										selected={this.selected}
-								/>
 
+								<Typeahead
+										options={this.personList()}
+										labelKey="name"
+										idKey="id"
+										selected={this.selected()}
+										onSelected={this.typeaheadSelected.bind(this)}
+										allowNew={true}
+								/>
 						</div>
 				);
+		}
+
+		private typeaheadSelected(values:TypeaheadSelection[]) {
+
+				if (values.length == 0) {
+						this.props.dispatch(clearPerson());
+				}
+
+				let value = values[0];
+				switch (value.type) {
+						case TypeaheadSelectionType.unknown:
+								this.props.dispatch(enterName(value.unknownText));
+								break;
+						case TypeaheadSelectionType.known:
+								this.props.dispatch(selectKnownPerson(value.knownId));
+								break;
+				}
+		}
+
+		private selected():TypeaheadSelection[] {
+
+				let state = this.props.state();
+
+				console.log('STATE', state.toJS());
+				
+				switch (state.type) {
+						case PersonStateType.empty:
+								return [];
+						case PersonStateType.known:
+								return [TypeaheadSelection.known(state.knownPersonId)];
+						case PersonStateType.unknown:
+								return [TypeaheadSelection.unknown(state.unknownPersonName)];
+				}
 		}
 
 		private personList() {

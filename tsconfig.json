@@ -8,8 +8,11 @@
 				"app/common/uuid.ts",
 				"app/app.tsx"
     ],
+		"paths": {
+				"common/": ["/app/common/*"]
+		},
     "compilerOptions": {
-        "target": "es5",
+        "target": "es6",
         "module": "commonjs",
         "moduleResolution": "node",
         "noImplicitAny": false,

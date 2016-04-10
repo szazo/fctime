@@ -1,22 +1,23 @@
-import {Injectable} from 'angular2/core';
-import {FcStore} from '../common/fc-store';
+import { IDispatch } from 'redux';
+import { createPlane } from './plane.model';
 
-@Injectable()
 export class PlaneService {
 
-	constructor(private store: FcStore) {
+	constructor(
+		private state: () => any,
+		private dispatch: IDispatch) {
 	}
 
 	public createPlane(id:any, registration:string, type:string) {
-		this.store.dispatch(createPlane(id, registration, type));
+		this.dispatch(createPlane(id, registration, type));
 	}
 	
 	public planeList() {
-		return this.store.state.planes.toArray();
+		return this.state().planes.toArray();
 	}
 
 	public findById(id:any):any {
-		var found = this.store.state.planes.toArray().find(x => x.id == id);
+		var found = this.state().planes.toArray().find(x => x.id == id);
 
 		return found;
 	}	

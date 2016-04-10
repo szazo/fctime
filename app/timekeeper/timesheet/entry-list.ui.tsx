@@ -5,7 +5,7 @@ import { IDispatch } from 'redux';
 import { UUID } from '../../common/uuid';
 import { changeTimekeeper } from '../../app.model';
 import { changeTimesheet } from '../timekeeper/timekeeper.model';
-import { createEntry } from './timesheet.model';
+import { createEntry, changeEntry } from './timesheet.model';
 import { Entry } from './entry/entry.ui';
 
 interface EntryListProps {
@@ -13,6 +13,7 @@ interface EntryListProps {
 		items: any[];
 
 		onCreateEntryClick: () => void;
+		onEntryChanged: (id:string, action:any) => void;
 }
 
 class EntryListView extends React.Component<EntryListProps, {}> {
@@ -34,7 +35,11 @@ class EntryListView extends React.Component<EntryListProps, {}> {
 						<tbody>
 						{
 								this.props.items.map((item) => (
-										<Entry key={item.id} state={item} />
+										<Entry
+												key={item.id}
+												state={() => item}
+												dispatch={(event) => this.props.onEntryChanged(item.id, event)}
+										/>
 								))
 						}
 						</tbody>
@@ -60,6 +65,13 @@ const dispatchToProps = (dispatch: IDispatch, props:any) => ({
 				let timesheetId = props.params.id;
 
 				dispatch(changeTimekeeper(changeTimesheet(timesheetId, createEntry(id))));
+		},
+
+		onEntryChanged: (id:string, action:any) => {
+
+				
+				let timesheetId = props.params.id;
+				dispatch(changeTimekeeper(changeTimesheet(timesheetId, changeEntry(id, action))));
 		}
 })
 

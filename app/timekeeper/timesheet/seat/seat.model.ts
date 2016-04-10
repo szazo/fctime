@@ -13,14 +13,14 @@ export const Seat = SeatRecord;
 const CHANGE_PERSON = 'change_person';
 const CHANGE_ROLE = 'change_role';
 
-function changePerson(action: any) {
+export function changePerson(action: any) {
 	return {
 		type: CHANGE_PERSON,
 		action
 	}
 }
 
-function changeRole(action: any) {
+export function changeRole(action: any) {
 	return {
 		type: CHANGE_ROLE,
 		action

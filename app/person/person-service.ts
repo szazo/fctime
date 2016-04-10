@@ -1,27 +1,27 @@
-import { IStore } from 'redux';
+import { IDispatch } from 'redux';
+
+import { UUID } from '../common/uuid';
+import { createPerson } from './person.model';
 
 export class PersonService {
 
-	constructor(private store: IStore<any>)
-	{
+	constructor(
+		private state: () => any,
+		private dispatch: IDispatch) {
+	}
+
+	public createPerson(name:string, club:string, level:string) {
+		this.dispatch(createPerson(UUID.generate(), name, club, level));
 	}
 
 	public personList() {
-		return this.store.getState().persons.toArray();
+		return this.state().persons.toArray();
 	}
 
 	public findById(id:any):any {
-		var found = this.store.getState().persons.toArray().find(x => x.id == id);
+		var found = this.state().persons.toArray().find(x => x.id == id);
 
 		return found;
 	}
 
-	// public findPerson(pattern:string) {
-	// 	let persons = this.store.getState().persons;
-
-	// 	let regex = new RegExp('.*' + pattern + '.*');
-	// 	let found = persons.toArray().find(x => regex.test(x));
-
-	// 	alert('found');
-	// }
 }

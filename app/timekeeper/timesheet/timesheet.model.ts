@@ -58,3 +58,11 @@ export function createEntry(id:string) {
 	}
 }
 
+export function changeEntry(id:string, action:any) {
+	return {
+		type: CHANGE_ENTRY,
+		id,
+		action
+	}
+}
+

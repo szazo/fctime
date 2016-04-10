@@ -78,33 +78,6 @@ function selectRole(id:any) {
 
 
 
-function changePrimarySeat(action: any) {
-	return {
-		type: CHANGE_PRIMARY_SEAT,
-		action
-	};
-}
-
-function changeSecondarySeat(action: any) {
-	return {
-		type: CHANGE_SECONDARY_SEAT,
-		action
-	};
-}
-
-function changePlane(action: any) {
-	return {
-		type: CHANGE_PLANE,
-		action
-	};
-}
-
-function changeGliderTime(action: any) {
-	return {
-		type: CHANGE_GLIDER_TIME,
-		action
-	};
-}
 
 function changeEntry(id:any, action:any) {
 	return {

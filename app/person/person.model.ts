@@ -1,4 +1,4 @@
-import {Record} from 'immutable';
+import { Record, List } from 'immutable';
 
 const CREATE_PERSON = 'create_person';
 
@@ -11,7 +11,11 @@ const PersonDataRecord = Record({
 
 const PersonData = PersonDataRecord;
 
-function createPerson(id:string, name:string, club:string, level:string) {
+export const PersonManagement = Record({
+	persons: List([])
+});
+
+export function createPerson(id:string, name:string, club:string, level:string) {
 
 	return {
 		type: CREATE_PERSON,
@@ -22,7 +26,7 @@ function createPerson(id:string, name:string, club:string, level:string) {
 	}
 }
 
-function personManagementReducer(state: any, action: any) {
+export function personManagementReducer(state: any, action: any) {
 
 	let personData = new PersonData({
 		id: action.id,

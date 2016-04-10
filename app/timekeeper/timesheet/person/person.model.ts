@@ -1,6 +1,6 @@
 import {Record} from 'immutable';
 
-enum PersonStateType {
+export enum PersonStateType {
 	empty,
 	unknown,
 	known
@@ -24,24 +24,24 @@ export class Person extends PersonRecord {
 	}
 }
 
-const CHANGE_NAME = 'enter_name';
+const ENTER_NAME = 'enter_name';
 const CLEAR_PERSON = 'clear_person';
 const SELECT_KNOWN_PERSON = 'select_known_person';
 
-function enterName(name:string) {
+export function enterName(name:string) {
 	return {
-		type: CHANGE_NAME,
+		type: ENTER_NAME,
 		name
 	}
 }
 
-function clearPerson() {
+export function clearPerson() {
 	return {
 		type: CLEAR_PERSON
 	}
 }
 
-function selectKnownPerson(id:any) {
+export function selectKnownPerson(id:any) {
 	return {
 		type: SELECT_KNOWN_PERSON,
 		id
@@ -50,20 +50,31 @@ function selectKnownPerson(id:any) {
 
 export const personReducer = (state: any, action: any) => {
 
-	switch (action.type) {
+		switch (action.type) {
 		
-	case CHANGE_NAME:
+	case ENTER_NAME:
 
-		state = state.set('type', PersonStateType.unknown);
-		state = state.set('unknownPersonName', action.name);
-		state = state.set('knownPersonId', '');
+		state = state
+			.set('type', PersonStateType.unknown)
+			.set('unknownPersonName', action.name)
+			.set('knownPersonId', '');
 
 		return state;
 	case SELECT_KNOWN_PERSON:
 
-		state = state.set('type', PersonStateType.known);
-		state = state.set('unknownPersonName', '');
-		state = state.set('knownPersonId', action.id);
+		state = state
+			.set('type', PersonStateType.known)
+			.set('unknownPersonName', '')
+			.set('knownPersonId', action.id);
+
+		return state;
+
+	case CLEAR_PERSON:
+
+		state = state
+			.set('type', PersonStateType.empty)
+		  .set('unknownPersonName', '')
+			.set('knownPersonId', '');
 
 		return state;
 		

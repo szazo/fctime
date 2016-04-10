@@ -1,6 +1,6 @@
 import {Record} from 'immutable';
 
-enum PlaneStateType {
+export enum PlaneStateType {
 	empty,
 	unknown,
 	known
@@ -22,18 +22,25 @@ export const Plane = PlaneRecord;
 
 const SELECT_KNOWN_PLANE = 'select_known_plane';
 const ENTER_PLANE_REGISTRATION = 'enter_plane_registration';
+const CLEAR_PLANE = 'clear_plane';
 
-function selectKnownPlane(id:any) {
+export function selectKnownPlane(id:any) {
 	return {
 		type: SELECT_KNOWN_PLANE,
 		id
 	}
 }
 
-function enterPlaneRegistration(registration:string) {
+export function enterPlaneRegistration(registration:string) {
 	return {
 		type: ENTER_PLANE_REGISTRATION,
 		registration
+	}
+}
+
+export function clearPlane() {
+	return {
+		type: CLEAR_PLANE
 	}
 }
 
@@ -43,20 +50,31 @@ export function planeReducer(state: any, action: any) {
 
 	case SELECT_KNOWN_PLANE:
 
-		state = state.set('knownPlaneId', action.id);
-		state = state.set('type', PlaneStateType.known);
-		state = state.set('unknownPlaneRegistration', '');
+		state = state
+			.set('knownPlaneId', action.id)
+			.set('type', PlaneStateType.known)
+			.set('unknownPlaneRegistration', '');
 
 		return state;
 
 	case ENTER_PLANE_REGISTRATION:
 
-		state = state.set('knownPlaneId', '');
-		state = state.set('type', PlaneStateType.unknown);
-		state = state.set('unknownPlaneRegistration', action.registration);
+		state = state
+			.set('knownPlaneId', '')
+			.set('type', PlaneStateType.unknown)
+			.set('unknownPlaneRegistration', action.registration);
 
 		return state;
 
+	case CLEAR_PLANE:
+
+		state = state
+			.set('knownPlaneId', '')
+			.set('type', PlaneStateType.empty)
+			.set('unknownPlaneRegistration', '');
+
+		return state;
+		
 	default:
 		return state;
 	}

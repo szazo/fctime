@@ -12,11 +12,11 @@ declare module 'react-autocomplete' {
 //	declare let Autocomplete:any;
 //	export default Autocomplete;
 
-declare module 'react-autocomplete' {
-	var Autocomplete:any;
+// declare module 'react-autocomplete' {
+// 	var Autocomplete:any;
 	
-	export = Autocomplete;
-}
+// 	export = Autocomplete;
+// }
 
 declare module 'react-bootstrap-typeahead' {
 	export var Typeahead:any;
@@ -24,10 +24,10 @@ declare module 'react-bootstrap-typeahead' {
 	export default Typeahead;
 }
 
-declare module 'react-typeahead' {
-	export var Typeahead:any;
-	export var Alma:any;
+// declare module 'react-typeahead' {
+// 	export var Typeahead:any;
+// 	export var Alma:any;
 
-//	export = Typeahead;
-//	export = Alma;
-}
+// //	export = Typeahead;
+// //	export = Alma;
+// }

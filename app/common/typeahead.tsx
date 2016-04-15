@@ -1,5 +1,3 @@
-/// <reference path="./react-bootstrap-typeahead" />
-
 import * as React from 'react';
 
 import * as ExternalLib from 'react-bootstrap-typeahead';

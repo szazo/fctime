@@ -24,6 +24,18 @@ declare module 'react-bootstrap-typeahead' {
 	export default Typeahead;
 }
 
+declare module 'react-bootstrap-breadcrumbs' {
+	var Breadcrumbs:any;
+	
+	export = Breadcrumbs;
+}
+
+declare module 'react-mask-mixin' {
+	var ReactMaskMixin:any;
+
+	export = ReactMaskMixin;
+}
+
 // declare module 'react-typeahead' {
 // 	export var Typeahead:any;
 // 	export var Alma:any;

@@ -3,6 +3,7 @@
 				"typings/moment/moment-node.d.ts",
 				"typings/node-uuid/node-uuid-cjs.d.ts",
 				"typings/main.d.ts",
+				"custom-typings.d.ts",
 				"node_modules/immutable/dist/immutable.d.ts",
 //				"node_modules/ng2-bootstrap/ng2-bootstrap.d.ts",
 				"app/common/uuid.ts",

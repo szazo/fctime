@@ -19,7 +19,7 @@ export class Time {
 	}
 	
 	public static empty() {
-		return new Time(0, 0);
+		return new Time(-1, -1);
 	}
 
 	private static invalid() {
@@ -35,7 +35,7 @@ export class Time {
 	}
 
 	public static parse(text:string):Time {
-		let m = moment(text, 'HH:mm');
+		let m = moment(text, 'HH:mm', true);
 		if (m.isValid()) {
 			return Time.fromMoment(m);
 		}
@@ -50,10 +50,59 @@ export class Time {
 
 	public static fromMoment(m:moment.Moment) {
 		return Time.time(m.hours(), m.minutes());
-	}		
+	}
 
-	private format():string {
-		let m = moment({ hour:this.hour, minute:this.minute });
+	public diffFrom(previous:Time):Time {
+
+		if (!this.isValid()) {
+			return Time.empty();
+		}
+
+		if (!previous.isValid()) {
+			return Time.empty();
+		}
+		
+		let thisMoment = this.timeToMoment(this);
+		let previousMoment = this.timeToMoment(previous);
+		
+		let diffMinutes = thisMoment.diff(previousMoment, 'minutes');
+
+		let duration = moment.duration(diffMinutes, 'minutes');
+		
+		return Time.time(duration.hours(), duration.minutes());		
+	}
+
+	public add(other:Time):Time {
+
+		if (!this.isValid()) {
+			return Time.empty();
+		}
+
+		if (!other.isValid()) {
+			return Time.empty();
+		}
+
+		let thisMoment = this.timeToMoment(this);
+		let newMoment = thisMoment
+			.add(other.hour, 'hours')
+			.add(other.minute, 'minutes');
+
+		return Time.fromMoment(newMoment);
+	}
+
+	public format():string {
+		let m = this.toMoment();
 		return m.format('HH:mm');
-	}		
+	}
+
+	private toMoment() {
+		let m = this.timeToMoment(this);
+
+		return m;
+	}
+
+	private timeToMoment(time:Time) {
+		let m = moment({ hour:time.hour, minute:time.minute });
+		return m;
+	}
 }

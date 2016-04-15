@@ -1,11 +1,14 @@
 import * as React from 'react';
 import * as moment from 'moment';
 
+import * as classNames from 'classnames';
 import { FluxProps } from '../../../common/flux-props';
 import { Time } from '../../common/time';
+import * as ReactMaskMixin from 'react-mask-mixin';
 
-import { GliderTimePhase, takeoff, land, changeTakeoffTime, changeLandTime, changeAirTime } from './glider-time.model';
+import { GliderTimePhase, takeoff, land, changeTakeoffTime, changeLandTime, changeAirTime, TimeState, TimeStateImpl, TimePhase, recordToTimeState } from './glider-time.model';
 
+/*
 // TODO: state-ben kezelni az aktuális állapotokat, ezt fogja frissíteni a react, itt még lehet invalid időt is megadni
 class TimeEntry {
 
@@ -36,34 +39,62 @@ class State {
 				return null;
 		}
 }
+*/
 
-export class GliderTime extends React.Component<FluxProps, State> {
+interface TimeInputProps {
 
-		getInitialState() {
+		value:TimeState;
+		onChange?(time: string);
+}
+
+class TimeInput extends React.Component<TimeInputProps, {}> {
+
+		render() {
+
+				let classes = classNames({
+						'has-error': this.props.value.phase == TimePhase.invalid
+				})
 				
-		}
+				return (
+						<div className={classes}>
+								<input type="text" className="form-control" onChange={this.handleChange.bind(this)} value={this.text()} />
+						</div>);
+		}				
 		
+		private handleChange(event:any) {
+
+				this.props.onChange(event.target.value);
+		}
+
+		private text():string {
+				return this.props.value.text;
+		}
+}
+
+export class GliderTime extends React.Component<FluxProps, {}> {
+
 		render() {
 
 				let startTime;
 				if (this.isNone()) {
 						startTime = <button className="takeoff-button" onClick={this.takeoff.bind(this)}>Felszállás</button>;
 				} else if (this.isFlying() || this.isLanded()) {
-						startTime = <input type="text" onChange={this.changeTakeoffTime.bind(this)} value={this.takeoffTime()} />;
+						startTime = <TimeInput onChange={this.changeTakeoffTime.bind(this)} value={this.takeoffTime()} />
+						{/* startTime = <input type="text" onChange={this.changeTakeoffTime.bind(this)} value={this.takeoffTime()} />; */}
 				}
 
 				let landTime;
 				if (this.isFlying()) {
 						landTime = <button class="land-button" onClick={this.land.bind(this)}>Leszállt</button>;
 				} else if (this.isLanded()) {
-						landTime = <input type="text" onChange={this.changeLandTime.bind(this)} value={this.landTime()} />;
+						landTime = <TimeInput onChange={this.changeLandTime.bind(this)} value={this.landTime()} />
 				}
 
 				let flyTime;
 				if (this.isFlying()) {
-						flyTime = this.flyingAirTime();
+						flyTime = this.flyingAirTime().text;
 				} else if (this.isLanded()) {
-						flyTime = <input type="text" onChange={this.changeAirTime.bind(this)} value={this.airTime()} />;
+						flyTime = <TimeInput onChange={this.changeAirTime.bind(this)} value={this.airTime()} />
 				}
 				
 				return (
@@ -75,23 +106,20 @@ export class GliderTime extends React.Component<FluxProps, State> {
 				);
 		}
 
-		private takeoffTime():string {
-				return this.props.state().takeoffTime.format();
+		private takeoffTime():TimeState {
+				return recordToTimeState(this.props.state().takeoffTime);
 		}		
 
 		private takeoff() {
 				this.props.dispatch(takeoff());
 		}
 
-		private changeTakeoffTime(value:string) {
-				let time = Time.parse(value);
-				if (time.isValid()) {
-						this.props.dispatch(changeTakeoffTime(time));
-				}
+		private changeTakeoffTime(time:string) {
+				this.props.dispatch(changeTakeoffTime(time));
 		}		
 
-		private landTime():string {
-				return this.props.state().landTime.format();
+		private landTime():TimeState {
+				return recordToTimeState(this.props.state().landTime);
 		}
 
 		private land() {
@@ -99,26 +127,27 @@ export class GliderTime extends React.Component<FluxProps, State> {
 		}
 
 		private changeLandTime(value:string) {
-				let time = Time.parse(value);
-				if (time.isValid()) {
-						this.props.dispatch(changeLandTime(time));
-				}				
+				this.props.dispatch(changeLandTime(value));
 		}
 
 		private changeAirTime(value:string) {
-				let time = Time.parse(value);
-				if (time.isValid()) {
-						this.props.dispatch(changeAirTime(time));
-				}
+				this.props.dispatch(changeAirTime(value));
 		}
 
-		private flyingAirTime():string {
-				return this.airTime();
+		private flyingAirTime():TimeState {
+
+				if (!this.takeoffTime().isValid) {
+						return TimeStateImpl.empty();
+				}
+				
+				let diff = Time.now().diffFrom(this.takeoffTime().time);
+				return TimeStateImpl.valid(diff);
 		}		
 
 		private airTime() {
-
-				return '';
+				
+				return recordToTimeState(this.props.state().airTime);
+//				return '';
 				/* 
 					 var takeoff = moment(this.props.state().takeoffTime);
 					 var land = moment(this.props.state().landTime);

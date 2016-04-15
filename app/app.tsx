@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom';
 import { Router, Route, IndexRoute, Link, hashHistory } from 'react-router';
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware, IReducer, IAction } from 'redux';
-
+import * as Breadcrumbs from 'react-bootstrap-breadcrumbs';
 import { DevTools } from './devtools';
 
 import { ActionLog } from './common/action-log';
@@ -81,10 +81,36 @@ if (actionLog.actions().length == 0) {
 		createDummyPlanes();
 }
 
+function getRouteTitle(name:string, route:any, params:any) {
+		/* switch (name) {
+			 case 'root':
+			 return 'Kezdőlap';
+			 case 'timesheet-list':
+			 return 'Üzemnapok';
+			 case 'timesheet':
+			 return 'Üzemnap';
+			 default:
+			 return 'unknown';
+			 } */
+}
+
 console.log('store', store);
 //		applyMiddleware(actionLog.middleware, DevTools.instrument()));
 
-class App extends React.Component<{},{}> {
+class Logo extends React.Component<{}, {}> {
+
+		render() {
+
+				return (
+
+						<div style={{width: '50%'}}>
+ 								<img style={{width: '500px', margin: 'auto'}} src="app/img/logo.jpg" />
+						</div>
+				);
+		}
+}
+
+class App extends React.Component<{routes:any, params:any},{}> {
 		
 		static childContextTypes = {
 				personService: React.PropTypes.object,
@@ -116,6 +142,11 @@ class App extends React.Component<{},{}> {
 												</ul>
 										</div>
 								</nav>
+
+								<Breadcrumbs getTitle={getRouteTitle}
+														 routes={this.props.routes}
+														 params={this.props.params} />
+								
 								{ this.props.children }
 								<DevTools />
 						</div>
@@ -132,6 +163,7 @@ ReactDOM.render(
 		<Provider store={store}>
 				<Router history={hashHistory}>
 						<Route path="/" component={App}>
+								<IndexRoute component={Logo} />
 								<Route path="timekeeper" component={Timekeeper}>
 										<IndexRoute component={TimesheetList} />
 										<Route path="timesheet/:id" component={EntryList} />

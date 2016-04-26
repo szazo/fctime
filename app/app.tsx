@@ -12,6 +12,8 @@ import { rootReducer, RootRecord, managePersons, managePlanes } from './app.mode
 import { Timekeeper } from './timekeeper/timekeeper/timekeeper.ui';
 import { TimesheetList } from './timekeeper/timekeeper/timesheet-list.ui';
 import { EntryList } from './timekeeper/timesheet/entry-list.ui';
+import { TimesheetProps} from './timekeeper/timesheet/props/timesheet-props.ui';
+import { Timesheet } from './timekeeper/timesheet/timesheet.ui';
 import { PersonService } from './person/person-service';
 import { createPerson } from './person/person.model';
 
@@ -168,7 +170,11 @@ ReactDOM.render(
 								<IndexRoute component={Logo} />
 								<Route path="timekeeper" component={Timekeeper}>
 										<IndexRoute component={TimesheetList} />
-										<Route path="timesheet/:id" component={EntryList} />
+										{/* <Route path="timesheet/:id" component={EntryList} /> */}
+										<Route path="timesheet/:id" component={Timesheet}>
+												<IndexRoute component={EntryList} />
+												<Route path="props" component={TimesheetProps} />
+										</Route>
 								</Route>
 						</Route>
 				</Router>

@@ -42,6 +42,7 @@
     "react": "^0.14.8",
     "react-bootstrap": "^0.28.5",
     "react-bootstrap-breadcrumbs": "^0.1.2",
+    "react-bootstrap-table": "^2.1.5",
     "react-mask-mixin": "0.0.11",
     "react-redux": "^4.4.2",
     "react-router": "^2.0.1",

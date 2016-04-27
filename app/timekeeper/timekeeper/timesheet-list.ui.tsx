@@ -24,6 +24,9 @@ class TimesheetListView extends React.Component<TimesheetListProps, {}> {
 				return (
 						<div>
 								<button className="btn btn-primary" onClick={this.props.onCreateTimesheetClick}>Új üzemnap</button>
+
+								
+								
 								<table className="table table-striped table-hover">
 										<tbody>
 												<tr>

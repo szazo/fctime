@@ -3,6 +3,8 @@ import * as ReactDOM from 'react-dom';
 import { Router, Route, IndexRoute, Link, hashHistory } from 'react-router';
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware, IReducer, IAction } from 'redux';
+import { Navbar, NavbarCollapse, Nav, NavItem } from 'react-bootstrap';
+import { RouteNavItem } from './common/route-nav-item';
 import * as Breadcrumbs from 'react-bootstrap-breadcrumbs';
 import { DevTools } from './devtools';
 
@@ -131,21 +133,37 @@ class App extends React.Component<{routes:any, params:any},{}> {
 		
 		render() {
 				return (
-
-						<div>
-								<nav className="navbar navbar-inverse navbar-fixed-top">
 						
-										<div className="container-fluid">
-												<div className="navbar-header">
-														<a className="navbar-brand" href="#">
+						<div>
+								<Navbar inverse fixedTop fluid>
+										<Navbar.Header>
+												<Navbar.Brand>
+														<a href="#">
 																<img style={{width: '30px'}} src="app/img/logo.jpg" />
 														</a>
-												</div>
-												<ul className="nav navbar-nav">
-														<li><Link to={`/timekeeper`} activeClass="active">Időmérő</Link></li>
-												</ul>
-										</div>
-								</nav>
+												</Navbar.Brand>
+										</Navbar.Header>
+										<Navbar.Collapse>
+												<Nav>
+														<RouteNavItem path="/timekeeper">Időmérő</RouteNavItem>
+												</Nav>
+										</Navbar.Collapse>
+								</Navbar>
+
+								
+								{/* <nav className="navbar navbar-inverse navbar-fixed-top">
+								
+								<div className="container-fluid">
+								<div className="navbar-header">
+								<a className="navbar-brand" href="#">
+								<img style={{width: '30px'}} src="app/img/logo.jpg" />
+								</a>
+								</div>
+								<ul className="nav navbar-nav">
+								<li><Link to={`/timekeeper`} activeClass="active">Időmérő</Link></li>
+								</ul>
+								</div>
+								</nav> */}
 
 								<Breadcrumbs getTitle={getRouteTitle}
 														 routes={this.props.routes}

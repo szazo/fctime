@@ -1,5 +1,6 @@
 {
     "files": [
+				"typings/node/node.d.ts",
 				"typings/moment/moment-node.d.ts",
 				"typings/node-uuid/node-uuid-cjs.d.ts",
 				"typings/main.d.ts",

@@ -5,7 +5,7 @@ import { NavItem } from 'react-bootstrap';
 export class RouteNavItem extends React.Component<{ path: string, indexOnly?: boolean }, {}> {
 
 		static contextTypes = {
-				router: React.PropTypes.func.isRequired
+				router: React.PropTypes.object.isRequired
 		};
 
 		context: {

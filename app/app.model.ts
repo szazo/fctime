@@ -43,7 +43,7 @@ const initialState = new Root({});
 
 export function rootReducer(state: any, action: any) {
 
-	console.log('root', action);
+//	console.log('root', action);
 	
 	if (state == undefined) {
 
@@ -54,7 +54,7 @@ export function rootReducer(state: any, action: any) {
 	case CHANGE_TIMEKEEPER:
 
 		state = state.set('timekeeper', timekeeperReducer(state.timekeeper, action.action));
-		console.log('NEW TIMEKEEPER STATE', state.toJS());
+//		console.log('NEW TIMEKEEPER STATE', state.toJS());
 
 		return state;
 

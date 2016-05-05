@@ -170,7 +170,7 @@ class App extends React.Component<{routes:any, params:any},{}> {
 														 params={this.props.params} />
 								
 								{ this.props.children }
-								<DevTools />
+								{/* <DevTools /> */}
 						</div>
 				);
 		}

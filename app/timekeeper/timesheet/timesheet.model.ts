@@ -1,5 +1,6 @@
 import {List,Record} from 'immutable';
 import {Entry, entryReducer} from './entry/entry.model';
+import { TimesheetMetaRecord } from './props/timesheet-meta.model';
 
 const CREATE_ENTRY = 'add_entry';
 const CHANGE_ENTRY = 'change_entry';
@@ -8,7 +9,8 @@ const TimesheetRecord = Record({
 	id: '',
 	date: '',
 	place: '',
-	items: List([])
+	items: List([]),
+	meta: new TimesheetMetaRecord()
 });
 
 export const Timesheet = TimesheetRecord;

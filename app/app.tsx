@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom';
 import { Router, Route, IndexRoute, Link, hashHistory } from 'react-router';
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware, IReducer, IAction } from 'redux';
-import { Navbar, NavbarCollapse, Nav, NavItem } from 'react-bootstrap';
+import { Navbar, NavbarCollapse, Nav, NavItem, Row, Grid, Col } from 'react-bootstrap';
 import { RouteNavItem } from './common/route-nav-item';
 import * as Breadcrumbs from 'react-bootstrap-breadcrumbs';
 import { DevTools } from './devtools';
@@ -14,7 +14,7 @@ import { rootReducer, RootRecord, managePersons, managePlanes } from './app.mode
 import { Timekeeper } from './timekeeper/timekeeper/timekeeper.ui';
 import { TimesheetList } from './timekeeper/timekeeper/timesheet-list.ui';
 import { EntryList } from './timekeeper/timesheet/entry-list.ui';
-import { TimesheetProps} from './timekeeper/timesheet/props/timesheet-props.ui';
+import { TimesheetMeta} from './timekeeper/timesheet/props/timesheet-meta.reduxmapping';
 import { Timesheet } from './timekeeper/timesheet/timesheet.ui';
 import { PersonService } from './person/person-service';
 import { createPerson } from './person/person.model';
@@ -22,6 +22,7 @@ import { createPerson } from './person/person.model';
 import { PlaneService } from './plane/plane-service';
 
 require('./styles/main.scss');
+require('react-bootstrap-table/css/react-bootstrap-table-all.min.css');
 
 let actionLog = new ActionLog();
 
@@ -168,8 +169,13 @@ class App extends React.Component<{routes:any, params:any},{}> {
 								<Breadcrumbs getTitle={getRouteTitle}
 														 routes={this.props.routes}
 														 params={this.props.params} />
-								
-								{ this.props.children }
+								<Grid fluid>
+										<Row>
+												<Col xs="12">
+														{ this.props.children }
+												</Col>
+										</Row>
+								</Grid>
 								{/* <DevTools /> */}
 						</div>
 				);
@@ -191,7 +197,7 @@ ReactDOM.render(
 										{/* <Route path="timesheet/:id" component={EntryList} /> */}
 										<Route path="timesheet/:id" component={Timesheet}>
 												<IndexRoute component={EntryList} />
-												<Route path="props" component={TimesheetProps} />
+												<Route path="props" component={TimesheetMeta} />
 										</Route>
 								</Route>
 						</Route>

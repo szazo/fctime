@@ -18,6 +18,12 @@ declare module 'react-autocomplete' {
 // 	export = Autocomplete;
 // }
 
+declare module 'react-bootstrap-datetimepicker' {
+	var DateTimeField:any;
+
+	export default DateTimeField;
+}
+
 declare module 'react-bootstrap-typeahead' {
 	export var Typeahead:any;
 	

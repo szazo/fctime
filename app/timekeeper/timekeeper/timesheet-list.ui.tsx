@@ -36,10 +36,10 @@ class TimesheetListView extends React.Component<TimesheetListProps, {}> {
 										<Button bsStyle="primary" onClick={this.props.onCreateTimesheetClick}>Új üzemnap</Button>
 								</ButtonToolbar>
 
-								<BootstrapTable data={this.props.items} search>
+								<BootstrapTable data={this.props.items} search striped>
 										<TableHeaderColumn isKey dataField="id" dataFormat={linkFormatter}>Azonosító</TableHeaderColumn>
-										<TableHeaderColumn dataField="date">Dátum</TableHeaderColumn>
-										<TableHeaderColumn dataField="place">Helyszín</TableHeaderColumn>
+										<TableHeaderColumn dataField="date" dataSort>Dátum</TableHeaderColumn>
+										<TableHeaderColumn dataField="place" dataSort>Helyszín</TableHeaderColumn>
 								</BootstrapTable>
 								
 								{/* <table className="table table-striped table-hover">

@@ -1,0 +1,4 @@
+
+alma:
+  script:
+    - echo 'hello'

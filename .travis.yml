@@ -8,4 +8,4 @@ node_js:
   - "5"
 
 script:
-  - echo 'hello'
+  - npm run build

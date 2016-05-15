@@ -172,7 +172,7 @@ class App extends React.Component<{routes:any, params:any},{}> {
 														 params={this.props.params} />
 								<Grid fluid>
 										<Row>
-												<Col xs="12">
+												<Col xs={12}>
 														{ this.props.children }
 												</Col>
 										</Row>

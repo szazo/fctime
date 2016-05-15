@@ -15,7 +15,7 @@ export class Timesheet extends React.Component<TimesheetProps, {}> {
 				
 				return <Grid fluid>
 						<Row>
-								<Col md="2" xs="2">
+								<Col md={2} xs={2}>
 										<Nav stacked bsStyle="pills">
 												<RouteNavItem path={"/timekeeper/timesheet/" + timesheetId} indexOnly>Időmérő</RouteNavItem>
 												<RouteNavItem path={"/timekeeper/timesheet/" + timesheetId + "/props"} indexOnly>Adatok</RouteNavItem>
@@ -23,7 +23,7 @@ export class Timesheet extends React.Component<TimesheetProps, {}> {
 												<NavItem>Gépátvételek</NavItem>
 										</Nav>
 								</Col>
-								<Col md="10" xs="10">{this.props.children}</Col>
+								<Col md={10} xs={10}>{this.props.children}</Col>
 						</Row>
 				</Grid>
 

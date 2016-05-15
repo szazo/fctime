@@ -1,8 +1,0 @@
-
-alma:
-  tags:
-    - linux
-  script:
-    - echo 'hello'
-    - docker build -f docker/prod/web/Dockerfile -t fctime_web .
-    - echo 'done'

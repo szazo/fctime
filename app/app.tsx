@@ -70,11 +70,11 @@ let personService = new PersonService(
 
 let createDummyPersons = () => {
 
-		personService.createPerson('Oláh Attila', 'Endresz', 'C');
-		personService.createPerson('Bagó Tomi', 'Endresz', 'C');
-		personService.createPerson('Juhász Dani', 'Endresz', 'C');
-		personService.createPerson('Sall Pisti', 'Endresz', 'C');
-		personService.createPerson('Tóth Balázs', 'Endresz', 'C');
+	personService.createPerson('Bagó Tomi', 'Endresz', 'C');
+	personService.createPerson('Juhász Dani', 'Endresz', 'C');
+	personService.createPerson('Oláh Attila', 'Endresz', 'C');
+	personService.createPerson('Sall Pisti', 'Endresz', 'C');
+	personService.createPerson('Tóth Balázs', 'Endresz', 'C');
 }
 
 let createDummyPlanes = () => {

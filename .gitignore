@@ -6,3 +6,4 @@ app/**/*.css
 .tscache
 **/#*#
 *.*~
+build

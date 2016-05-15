@@ -1,6 +1,7 @@
 module.exports = {
 	entry: './app/app.tsx',
 	output: {
+		path: 'build',
 		filename: 'bundle.js'
 	},
 

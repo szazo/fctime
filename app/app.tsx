@@ -81,7 +81,7 @@ let createDummyPlanes = () => {
 
 		planeService.createPlane(UUID.generate(), 'HA-5560', 'R22');
 		planeService.createPlane(UUID.generate(), 'HA-5524', 'Astir CS');
-		planeService.createPlane(UUID.generate(), 'HA-5065', 'KA-7');		
+	planeService.createPlane(UUID.generate(), 'HA-5065', 'KA-7');		
 }
 
 if (actionLog.actions().length == 0) {

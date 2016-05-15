@@ -22,6 +22,7 @@ import { createPerson } from './person/person.model';
 import { PlaneService } from './plane/plane-service';
 
 require('./styles/main.scss');
+require('bootstrap/dist/css/bootstrap.css');
 require('react-bootstrap-table/css/react-bootstrap-table-all.min.css');
 
 let actionLog = new ActionLog();

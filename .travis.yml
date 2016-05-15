@@ -4,6 +4,8 @@ services:
   - docker
 
 language: node_js
+node_js:
+  - "5"
 
 script:
   - echo 'hello'

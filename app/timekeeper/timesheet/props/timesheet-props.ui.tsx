@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as DateTimeField from 'react-bootstrap-datetimepicker';
-import { changeDate, changeAirport, changeTimekeeper, changeLeader } from './timesheet-meta.model';
+import { changeDate, changeAirport, changeTimekeeper, changeLeader } from './timesheet-meta.actions';
 
 //declare var DateTimeField:any;
 

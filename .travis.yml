@@ -10,6 +10,6 @@ node_js:
 script:
   - npm run build
 after_success:
-  - docker build --tag="szazo/fctime:dev" docker/dev/web/Dockerfile
+  - docker build --tag="szazo/fctime:dev" --file=docker/dev/web/Dockerfile .
   - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
   - docker push szazo/fctime:dev
